@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  backend-lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gymbro-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: gymbro-backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --ci
+      # No live Gemini/Groq calls in CI — mock the provider adapters
+      # (services/aiProviders/*) rather than hitting real APIs.
+
+  frontend-lint-and-typecheck:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gymbro-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: gymbro-app/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --checkJs --noEmit --allowJs
