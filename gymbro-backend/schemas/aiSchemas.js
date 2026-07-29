@@ -12,6 +12,22 @@ const generatePlanRequestSchema = z.object({
   customInstructions: nonEmptyTrimmedString(500, 'customInstructions').nullable().optional(),
 });
 
+// ── POST /api/ai/generate-meal-plan ─────────────────────────────────
+// Mirrors generatePlanRequestSchema's shape — same "weekPreference +
+// customInstructions" contract, since a meal plan is structurally analogous
+// to a workout plan (Phase 1 workoutPlans schema; Phase 3 §2.6 flagged this
+// endpoint as missing). mealsPerDay lets the client override the profile
+// default (breakfast/lunch/dinner = 3) without a separate onboarding field.
+
+const generateMealPlanRequestSchema = z.object({
+  weekPreference: z.number().int().min(1).max(4).optional(), // meal plans regenerate more
+                                                              // often than workout plans;
+                                                              // capped tighter than the 12
+                                                              // weeks allowed for workout plans
+  mealsPerDay: z.number().int().min(2).max(6).optional(),
+  customInstructions: nonEmptyTrimmedString(500, 'customInstructions').nullable().optional(),
+});
+
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'pre_workout', 'post_workout'];
 
 const estimateNutritionRequestSchema = z.object({
@@ -46,6 +62,7 @@ const chatRequestSchema = z.object({
 
 module.exports = {
   generatePlanRequestSchema,
+  generateMealPlanRequestSchema,
   estimateNutritionRequestSchema,
   recoveryScoreRequestSchema,
   substituteExerciseRequestSchema,

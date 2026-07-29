@@ -6,9 +6,11 @@ const verifyToken = require('../middleware/verifyToken');
 const perUserThrottle = require('../middleware/perUserThrottle');
 const validateBody = require('../middleware/validateBody');
 const aiController = require('../controllers/aiController');
+const mealPlanController = require('../controllers/mealPlanController');
 
 const {
   generatePlanRequestSchema,
+  generateMealPlanRequestSchema,
   estimateNutritionRequestSchema,
   recoveryScoreRequestSchema,
   substituteExerciseRequestSchema,
@@ -25,6 +27,14 @@ router.post(
   perUserThrottle,
   validateBody(generatePlanRequestSchema),
   aiController.generateWorkoutPlan
+);
+
+router.post(
+  '/generate-meal-plan',
+  verifyToken,
+  perUserThrottle,
+  validateBody(generateMealPlanRequestSchema),
+  mealPlanController.generateMealPlan
 );
 
 router.post(

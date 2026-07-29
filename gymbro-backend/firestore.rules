@@ -19,6 +19,11 @@ service cloud.firestore {
                                             && request.auth.uid == uid;
       }
 
+      match /mealPlans/{mealPlanId} {
+        allow read, create, update, delete: if request.auth != null
+                                            && request.auth.uid == uid;
+      }
+
       match /dailyLogs/{date} {
         allow read, create, update, delete: if request.auth != null
                                             && request.auth.uid == uid;
