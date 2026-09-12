@@ -8,6 +8,7 @@ const admin = require('../config/firebase');
 const db = admin.firestore();
 const { callGeminiResilient } = require('../services/aiResilienceWrapper');
 const { TOKEN_LIMITS } = require('../services/geminiService');
+const { MODEL_ID } = require('../services/aiProviders/geminiAdapter');
 
 const { PLAN_SYSTEM_PROMPT, buildPlanUserPrompt } = require('../prompts/planPrompts');
 const { NUTRITION_SYSTEM_PROMPT, buildNutritionUserPrompt } = require('../prompts/nutritionPrompts');
@@ -84,7 +85,7 @@ exports.generateWorkoutPlan = async (req, res) => {
     const planDoc = {
       planId: newPlanRef.id,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      generatedByModel: 'gemini-2.5-flash-lite',
+      generatedByModel: MODEL_ID,
       planName: result.planName,
       isActive: true,
       durationWeeks: result.durationWeeks,

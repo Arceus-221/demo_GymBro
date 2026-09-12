@@ -1,10 +1,24 @@
 // services/aiProviders/geminiAdapter.js
-// gemini-2.0-flash and gemini-2.0-flash-lite were fully shut down by Google
-// on June 1, 2026 — this adapter must always target gemini-2.5-flash-lite.
+//
+// Model history, because this has now moved twice:
+//   - gemini-2.0-flash / 2.0-flash-lite: fully shut down by Google June 1, 2026.
+//   - gemini-2.5-flash-lite (what Phases 1-5 of the SRS specify) and
+//     gemini-2.5-flash: both now return 404 "no longer available to new users",
+//     verified against this project's own API key. The SRS's model choice is
+//     dead for any project not already grandfathered in.
+//   - gemini-3.5-flash-lite: current, verified working with the
+//     responseMimeType:'application/json' config every controller depends on,
+//     and still flash-LITE class so TOKEN_LIMITS and the 15 RPM limiter tuning
+//     in Phase 5 remain appropriate.
+//
+// MODEL_ID stays isolated here (Phase 1 §3E's explicit intent) so the next
+// forced migration is a one-line change rather than a project-wide edit.
 const axios = require('axios');
 
+const MODEL_ID = 'gemini-3.5-flash-lite';
+
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+  `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent`;
 
 const parseJsonDefensively = (rawText) => {
   try {
@@ -35,4 +49,7 @@ const call = async (systemPrompt, userPrompt, maxTokens) => {
   return parseJsonDefensively(rawText);
 };
 
-module.exports = { call };
+// MODEL_ID is exported so controllers can stamp `generatedByModel` on the
+// documents they write instead of hardcoding a model string that silently
+// goes stale the next time this constant changes.
+module.exports = { call, MODEL_ID };

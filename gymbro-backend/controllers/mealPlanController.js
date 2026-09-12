@@ -35,6 +35,7 @@ const db = admin.firestore();
 const { callGeminiResilient } = require('../services/aiResilienceWrapper');
 const { TOKEN_LIMITS } = require('../services/geminiService');
 const { MEAL_PLAN_SYSTEM_PROMPT, buildMealPlanUserPrompt } = require('../prompts/mealPlanPrompts');
+const { MODEL_ID } = require('../services/aiProviders/geminiAdapter');
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'pre_workout', 'post_workout'];
 
@@ -108,7 +109,7 @@ exports.generateMealPlan = async (req, res) => {
     const mealPlanDoc = {
       mealPlanId: newMealPlanRef.id,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      generatedByModel: 'gemini-2.5-flash-lite',
+      generatedByModel: MODEL_ID,
       planName: result.planName,
       isActive: true,
       durationWeeks: result.durationWeeks,

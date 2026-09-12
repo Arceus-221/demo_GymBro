@@ -27,7 +27,7 @@ them up is the most common way to introduce a security bug in this codebase.
 │  profile · workout logs      │        │  AI Controllers                    │
 │  meal logs · recovery logs   │        │      │                             │
 │  chat history reads/writes   │        │      ▼                             │
-│                              │        │  Gemini 2.5 Flash-Lite             │
+│                              │        │  Gemini 3.5 Flash-Lite             │
 │  Path B: fetch() w/ Firebase │───────▶│  (key lives ONLY in .env)          │
 │  ID token → Express backend  │        │                                    │
 │  ─────────────────────────── │        │  Groq-hosted Whisper (audio)       │
@@ -87,13 +87,12 @@ gymbro/
 ```
 
 > **Note on current state:** the backend is functionally complete against Phases 1, 2,
-> 4, and 5 — all five `/api/ai/*` controllers, the audio transcription proxy, the
-> Gemini/OpenRouter provider adapters, the rate limiter, and the resilience wrapper are
-> implemented and boot-tested (`npm install && npm run dev` + `curl /health` both verified
-> during scaffolding). What's still open: real Firebase project credentials (the repo only
-> ships `.env.example`), automated tests (`__tests__/` is empty), and the entire
-> `gymbro-app/` frontend beyond the folder structure and `apiClient.js` — the Expo screens
-> from Phase 3 still need to be built out.
+> 4, and 5 — all five `/api/ai/*` controllers plus `generate-meal-plan`, the audio
+> transcription proxy, the Gemini/OpenRouter provider adapters, the rate limiter, and the
+> resilience wrapper are implemented and boot-tested. The `gymbro-app/` frontend now has
+> every Phase 3 screen built (auth, 3-step onboarding, dashboard, workout mode, AI coach,
+> meal planner, progress) and bundles clean via `npx expo export`. What's still open:
+> automated tests on both sides, and an end-to-end run against a real Firebase project.
 
 ---
 
@@ -137,23 +136,30 @@ npm run predeploy               # runs `firebase deploy --only firestore:rules`
 
 ### 3.2 Frontend (`gymbro-app/`)
 
-The `gymbro-app/` folder here is the **target structure** (Phase 3 SRS §1) but has not
-been through `create-expo-app` yet, since that command needs to run interactively and
-generates platform config (`app.json`, Metro/Babel config) that shouldn't be hand-written.
-First time only:
+Expo SDK 57, expo-router, plain JavaScript. Already scaffolded — just install and run:
 
 ```bash
 cd gymbro-app
-npx create-expo-app@latest . --template blank   # answer prompts; it will warn the
-                                                 # directory isn't empty — that's expected,
-                                                 # it merges around package.json/services/etc.
-npm install
+npm install --legacy-peer-deps
 cp .env.example .env.local
 # Fill in .env.local with your Firebase web config + backend URL
 npx expo start
 ```
 
 Scan the QR code with Expo Go, or press `i` / `a` for a simulator.
+
+> `--legacy-peer-deps` is needed because expo-router pulls in a `react-dom` whose peer
+> range is a patch ahead of the `react` version Expo SDK 57 pins. It's inert for a native
+> build (nothing imports `react-dom`), but npm's strict resolver refuses the tree without it.
+
+**Firebase SDK choice:** the app uses the **Firebase JS SDK for both Auth and Firestore**,
+not `@react-native-firebase`. This is a deliberate deviation from Phase 3 SRS §3.3: the RN
+Firebase packages ship native modules, which would force a custom dev build and make
+Expo Go unusable. The tradeoff is that Firestore's `persistentLocalCache` is IndexedDB-backed
+and therefore unavailable on native — `services/firebase.js` falls back to `memoryLocalCache()`
+off web. Live `onSnapshot` reads and offline write queueing still work *within* a session,
+but the cache does not survive an app restart. Restoring the SRS's full offline guarantee
+means moving to `@react-native-firebase` and building a dev client.
 
 ### 3.3 Running Both Together
 
@@ -172,7 +178,7 @@ architectural choice, documented in depth in [`docs/GymBro_SRS_Phase_5.md`](./do
 | Constraint | Mitigation |
 |---|---|
 | **Render free tier sleeps after ~15 min idle** — first request after that pays a 20-50s cold-boot cost | Three layers: an app-launch fire-and-forget wake ping, a client loading-copy swap ("Waking Coach up...") after 4s so the spinner never looks broken, and a GitHub Actions cron hitting `/health` every 10 minutes during expected usage hours |
-| **Gemini 2.5 Flash-Lite free tier: 15 RPM / 1,000 RPD / 250K shared TPM** | A single in-process `bottleneck` queue (`maxConcurrent: 1, minTime: 4200ms, highWater: 30, OVERFLOW`) in front of every Gemini call, plus a per-user soft throttle (1 request per 2s) so one client can't starve the shared budget. RPD is a hard wall handled by a proactive daily counter, not retries; TPM is a payload-size concern handled by the fixed `TOKEN_LIMITS` per feature |
+| **Gemini free tier: 15 RPM / 1,000 RPD / 250K shared TPM** | A single in-process `bottleneck` queue (`maxConcurrent: 1, minTime: 4200ms, highWater: 30, OVERFLOW`) in front of every Gemini call, plus a per-user soft throttle (1 request per 2s) so one client can't starve the shared budget. RPD is a hard wall handled by a proactive daily counter, not retries; TPM is a payload-size concern handled by the fixed `TOKEN_LIMITS` per feature |
 | **Vendor lock-in risk** | A one-file provider-adapter interface (`services/aiProviders/`) resolved by a single `AI_PROVIDER` env var — swapping Gemini for OpenRouter (or a paid Gemini tier) touches zero controller code |
 | **API key exposure** | Gemini/OpenRouter/Groq keys exist only in `gymbro-backend/.env` / Render's dashboard — never in the Expo bundle. Every AI route requires a verified Firebase ID token before it's reachable at all |
 
@@ -212,6 +218,12 @@ Full detail: [`docs/GymBro_SRS_Phase_2.md` §7](./docs/GymBro_SRS_Phase_2.md), e
   `<<<USER_INPUT>>> ... <<<END_USER_INPUT>>>` delimiter pattern intact — it's the primary
   defense against prompt injection via free-text fields (meal descriptions, chat
   messages, custom plan instructions).
+- **The Gemini model ID lives in exactly one place** — `MODEL_ID` in
+  `services/aiProviders/geminiAdapter.js`, which controllers import for
+  `generatedByModel` rather than hardcoding. The SRS's `gemini-2.5-flash-lite`
+  (and `gemini-2.5-flash`) now return 404 *"no longer available to new users"*,
+  so the project runs on `gemini-3.5-flash-lite`. Expect to move again; keep it
+  a one-line change.
 - **Token budgets are fixed constants** (`CHAT: 1200`, `SUBSTITUTE: 1000`, `RECOVERY: 1000`,
   `PLAN_RESTRUCTURE: 2500`, `MEAL_PLANNER: 4500`) — never pass a raw number to
   `callGemini`/`callGeminiResilient`. Undershooting truncates JSON mid-structure.
