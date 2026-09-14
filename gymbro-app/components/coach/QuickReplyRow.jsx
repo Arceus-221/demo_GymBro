@@ -15,7 +15,12 @@ export const QUICK_REPLIES = [
 
 export function QuickReplyRow({ onSelect, disabled }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.row}
+    >
       {QUICK_REPLIES.map((reply) => (
         <Pressable
           key={reply.label}
@@ -31,7 +36,17 @@ export function QuickReplyRow({ onSelect, disabled }) {
 }
 
 const styles = StyleSheet.create({
-  row: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  // flexGrow:0 keeps the row at its content height instead of absorbing
+  // leftover column space; alignItems:'center' overrides the content
+  // container's default 'stretch', which is what let the chips grow into
+  // tall blank boxes with their label stranded at the top (F4).
+  scroll: { flexGrow: 0 },
+  row: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+  },
   chip: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
@@ -39,6 +54,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.border.default,
     backgroundColor: colors.surface.light,
+    // Centre the label explicitly so a stretched chip can never strand it.
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   disabled: { opacity: 0.5 },
   text: { ...typography.small, fontWeight: '700', color: colors.text.mid },

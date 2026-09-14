@@ -163,7 +163,12 @@ export function ChatScreen({ conversationId: initialConversationId = null }) {
 
       <StatusChipBar chips={chips} />
 
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.messages}>
+      {/*
+        style, not just contentContainerStyle: without flex:1 here the message
+        list sizes to its content and the column's leftover height has nowhere
+        defined to go, which lets the two horizontal chip rows stretch (F4).
+      */}
+      <ScrollView ref={scrollRef} style={styles.messagesScroll} contentContainerStyle={styles.messages}>
         {isEmpty ? (
           <View style={styles.intro}>
             <ChatBubble
@@ -247,6 +252,7 @@ const styles = StyleSheet.create({
   headerTitle: { ...typography.label, fontSize: 12, color: '#FFFFFF' },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerStatus: { ...typography.eyebrow, fontSize: 8, color: colors.success, letterSpacing: 0.5 },
+  messagesScroll: { flex: 1 },
   messages: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl },
   intro: { gap: spacing.md },
   typing: { ...typography.small, color: colors.text.muted, marginLeft: 40 },

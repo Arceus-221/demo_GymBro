@@ -8,7 +8,12 @@ import { Icon } from '../shared/Icon';
  */
 export function StatusChipBar({ chips }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.scroll}
+      contentContainerStyle={styles.row}
+    >
       {chips.map((chip) => (
         <View key={chip.label} style={styles.chip}>
           <Icon name={chip.icon} size={12} color={colors.text.mid} />
@@ -20,7 +25,15 @@ export function StatusChipBar({ chips }) {
 }
 
 const styles = StyleSheet.create({
-  row: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  // See QuickReplyRow: the row must keep its content height rather than
+  // absorb leftover column space, and its chips must not stretch (F4).
+  scroll: { flexGrow: 0 },
+  row: {
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',

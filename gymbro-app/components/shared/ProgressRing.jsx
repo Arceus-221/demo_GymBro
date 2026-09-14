@@ -23,8 +23,13 @@ export function ProgressRing({
   const dashOffset = circumference * (1 - clamped / 100);
 
   return (
-    <View style={{ width: size, height: size }}>
-      <Svg width={size} height={size}>
+    // The ring is absolutely positioned *behind* the label rather than the
+    // label being absolute-filled over the ring. The label then centres by
+    // ordinary flex layout, so it can't fall into normal flow after the Svg,
+    // overflow this fixed-height box and get clipped by the dark panel that
+    // hosts it (F10).
+    <View style={[styles.wrap, { width: size, height: size }]}>
+      <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -47,18 +52,20 @@ export function ProgressRing({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <View style={styles.center}>
-        <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
-        {sublabel ? (
-          <Text style={[styles.sublabel, { color: labelColor }]}>{sublabel}</Text>
-        ) : null}
-      </View>
+      <Text style={[styles.label, { color: labelColor }]} numberOfLines={1}>
+        {label}
+      </Text>
+      {sublabel ? (
+        <Text style={[styles.sublabel, { color: labelColor }]} numberOfLines={1}>
+          {sublabel}
+        </Text>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
+  wrap: { alignItems: 'center', justifyContent: 'center' },
   label: { ...typography.h2, fontSize: 20 },
   sublabel: { ...typography.eyebrow, fontSize: 8, opacity: 0.7, letterSpacing: 1 },
 });
