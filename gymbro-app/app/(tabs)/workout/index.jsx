@@ -11,12 +11,14 @@ import { InlineRestTimerCard } from '../../../components/workout/InlineRestTimer
 import { SetLogTable } from '../../../components/workout/SetLogTable';
 import { WorkoutSummaryModal } from '../../../components/workout/WorkoutSummaryModal';
 import { colors, radius, spacing, typography } from '../../../constants/theme';
+import { formatWeight } from '../../../constants/units';
 import { useFirestoreDoc } from '../../../hooks/useFirestoreDoc';
 import { useRestTimer } from '../../../hooks/useRestTimer';
 import { toDateId, todayLabel } from '../../../hooks/useToday';
 import { db } from '../../../services/firebase';
 import { useActiveWorkoutStore } from '../../../store/useActiveWorkoutStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useUIStore } from '../../../store/useUIStore';
 import { useUserProfileStore } from '../../../store/useUserProfileStore';
 
@@ -25,6 +27,7 @@ export default function WorkoutMode() {
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const userDoc = useUserProfileStore((s) => s.userDoc);
+  const weightUnit = useSettingsStore((s) => s.weightUnit);
   const showToast = useUIStore((s) => s.showToast);
   const showError = useUIStore((s) => s.showError);
 
@@ -202,10 +205,14 @@ export default function WorkoutMode() {
         <View style={styles.tiles}>
           <BigTile label="SET" value={`${currentSetNumber} of ${exercise.sets.length}`} />
           <BigTile label="REPS" value={String(targetSet?.repsCompleted || exercise.repsRange || '—')} />
-          <BigTile label="WEIGHT" value={`${targetSet?.weightKg ?? 0} kg`} />
+          <BigTile label="WEIGHT" value={formatWeight(targetSet?.weightKg ?? 0, weightUnit)} />
         </View>
 
         <SetLogTable
+          // Remount per exercise so the table's in-progress weight drafts,
+          // which are keyed by row index, can't carry over to the next
+          // exercise's rows.
+          key={session.exerciseIndex}
           sets={exercise.sets}
           currentSetIndex={currentSetIndex}
           onChangeSet={(setIndex, patch) =>

@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../../constants/theme';
+import { formatWeight } from '../../constants/units';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Button } from '../shared/Button';
 import { Eyebrow, Heading } from '../shared/Typography';
 
 const RPE_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export function WorkoutSummaryModal({ visible, onCancel, onConfirm, saving, stats }) {
+  const weightUnit = useSettingsStore((s) => s.weightUnit);
   const [perceivedExertion, setPerceivedExertion] = useState(7);
   const [notes, setNotes] = useState('');
 
@@ -20,7 +23,7 @@ export function WorkoutSummaryModal({ visible, onCancel, onConfirm, saving, stat
           <View style={styles.statRow}>
             <SummaryStat value={stats.completedSets} label="Sets done" />
             <SummaryStat value={`${stats.durationMinutes}m`} label="Duration" />
-            <SummaryStat value={`${stats.volumeKg} kg`} label="Volume" />
+            <SummaryStat value={formatWeight(stats.volumeKg, weightUnit)} label="Volume" />
           </View>
 
           <View style={styles.block}>

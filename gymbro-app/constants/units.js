@@ -26,6 +26,12 @@ export function toStoredWeight(value, unit) {
   return unit === 'lb' ? value / LB_PER_KG : value;
 }
 
+/** One decimal is enough for a weight and keeps lb values from looking noisy. */
+export function round1(value) {
+  if (value == null) return null;
+  return Math.round(value * 10) / 10;
+}
+
 /** "72 kg" / "159 lb". Returns an em dash for missing values. */
 export function formatWeight(kg, unit, { decimals = 0, withUnit = true } = {}) {
   const value = toDisplayWeight(kg, unit);

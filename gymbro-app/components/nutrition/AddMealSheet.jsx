@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -71,86 +74,103 @@ export function AddMealSheet({ visible, onClose, onSave }) {
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
+      {/*
+        The sheet is pinned to the bottom, so without this the iOS keyboard
+        covers the description field the user is typing into (F2). Same idiom
+        as ChatScreen and AuthShell. The inner ScrollView matters once the AI
+        estimate renders and the sheet outgrows the space left above the
+        keyboard; "handled" keeps buttons tappable on the first press while
+        the keyboard is up.
+      */}
+      <KeyboardAvoidingView
+        style={styles.backdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <View style={styles.sheet}>
-          <Eyebrow>Log a meal</Eyebrow>
-          <Heading level={2}>WHAT DID YOU EAT?</Heading>
+          <ScrollView
+            contentContainerStyle={styles.sheetContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Eyebrow>Log a meal</Eyebrow>
+            <Heading level={2}>WHAT DID YOU EAT?</Heading>
 
-          <ChipGroup
-            options={MEAL_TYPES}
-            value={mealType}
-            onChange={(v) => {
-              setMealType(v);
-              setEstimate(null);
-            }}
-          />
-
-          <View style={styles.inputRow}>
-            <TextInput
-              value={description}
-              onChangeText={(t) => {
-                setDescription(t);
+            <ChipGroup
+              options={MEAL_TYPES}
+              value={mealType}
+              onChange={(v) => {
+                setMealType(v);
                 setEstimate(null);
               }}
-              placeholder="1 cup rice, chicken curry, 1 banana"
-              placeholderTextColor={colors.text.faint}
-              multiline
-              style={styles.input}
             />
-            <Pressable
-              onPress={handleMic}
-              style={[styles.mic, voice.isRecording && styles.micActive]}
-              accessibilityRole="button"
-              accessibilityLabel={voice.isRecording ? 'Stop recording' : 'Record a voice note'}
-            >
-              {voice.isTranscribing ? (
-                <ActivityIndicator size="small" color={colors.text.mid} />
-              ) : (
-                <Icon
-                  name="mic"
-                  size={19}
-                  color={voice.isRecording ? '#FFFFFF' : colors.text.mid}
-                />
-              )}
-            </Pressable>
-          </View>
 
-          {estimate ? (
-            <View style={styles.preview}>
-              <Eyebrow>AI estimate</Eyebrow>
-              <View style={styles.previewRow}>
-                <PreviewStat value={Math.round(estimate.calories)} label="KCAL" />
-                <PreviewStat value={`${Math.round(estimate.proteinG)}g`} label="PRO" />
-                <PreviewStat value={`${Math.round(estimate.carbsG)}g`} label="CARB" />
-                <PreviewStat value={`${Math.round(estimate.fatsG)}g`} label="FAT" />
+            <View style={styles.inputRow}>
+              <TextInput
+                value={description}
+                onChangeText={(t) => {
+                  setDescription(t);
+                  setEstimate(null);
+                }}
+                placeholder="1 cup rice, chicken curry, 1 banana"
+                placeholderTextColor={colors.text.faint}
+                multiline
+                style={styles.input}
+              />
+              <Pressable
+                onPress={handleMic}
+                style={[styles.mic, voice.isRecording && styles.micActive]}
+                accessibilityRole="button"
+                accessibilityLabel={voice.isRecording ? 'Stop recording' : 'Record a voice note'}
+              >
+                {voice.isTranscribing ? (
+                  <ActivityIndicator size="small" color={colors.text.mid} />
+                ) : (
+                  <Icon
+                    name="mic"
+                    size={19}
+                    color={voice.isRecording ? '#FFFFFF' : colors.text.mid}
+                  />
+                )}
+              </Pressable>
+            </View>
+
+            {estimate ? (
+              <View style={styles.preview}>
+                <Eyebrow>AI estimate</Eyebrow>
+                <View style={styles.previewRow}>
+                  <PreviewStat value={Math.round(estimate.calories)} label="KCAL" />
+                  <PreviewStat value={`${Math.round(estimate.proteinG)}g`} label="PRO" />
+                  <PreviewStat value={`${Math.round(estimate.carbsG)}g`} label="CARB" />
+                  <PreviewStat value={`${Math.round(estimate.fatsG)}g`} label="FAT" />
+                </View>
+                {(estimate.itemBreakdown ?? []).map((item, i) => (
+                  <Text key={i} style={styles.item}>
+                    {`• ${item.item} — ${item.calories} kcal`}
+                  </Text>
+                ))}
               </View>
-              {(estimate.itemBreakdown ?? []).map((item, i) => (
-                <Text key={i} style={styles.item}>
-                  {`• ${item.item} — ${item.calories} kcal`}
-                </Text>
-              ))}
-            </View>
-          ) : null}
+            ) : null}
 
-          {estimate ? (
-            <View style={styles.actions}>
-              <Button label="DISCARD" variant="ghost" onPress={reset} style={styles.flex} />
-              <Button label="SAVE" onPress={handleSave} loading={saving} style={styles.flex} />
-            </View>
-          ) : (
-            <Button
-              label={loadingHint === 'waking' ? 'WAKING COACH UP…' : 'ESTIMATE MACROS'}
-              onPress={handleEstimate}
-              loading={isLoading}
-              disabled={!description.trim()}
-            />
-          )}
+            {estimate ? (
+              <View style={styles.actions}>
+                <Button label="DISCARD" variant="ghost" onPress={reset} style={styles.flex} />
+                <Button label="SAVE" onPress={handleSave} loading={saving} style={styles.flex} />
+              </View>
+            ) : (
+              <Button
+                label={loadingHint === 'waking' ? 'WAKING COACH UP…' : 'ESTIMATE MACROS'}
+                onPress={handleEstimate}
+                loading={isLoading}
+                disabled={!description.trim()}
+              />
+            )}
 
-          <Pressable onPress={onClose} hitSlop={8}>
-            <Text style={styles.cancel}>Cancel</Text>
-          </Pressable>
+            <Pressable onPress={onClose} hitSlop={8}>
+              <Text style={styles.cancel}>Cancel</Text>
+            </Pressable>
+          </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -170,9 +190,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface.light,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.lg,
+    // Bounded so the ScrollView inside it has a height to scroll within.
+    // Under this the sheet still wraps its content, so short states (no
+    // estimate yet) keep the compact bottom-sheet look.
+    maxHeight: '85%',
   },
+  // Padding and gap live on the scroll content, not the sheet, or the sheet's
+  // padding would sit outside the scrollable area and clip the last row.
+  sheetContent: { padding: spacing.xl, gap: spacing.lg },
   inputRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
   input: {
     flex: 1,

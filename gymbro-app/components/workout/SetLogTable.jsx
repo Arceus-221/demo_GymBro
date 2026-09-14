@@ -1,18 +1,55 @@
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../../constants/theme';
+import { round1, toDisplayWeight, toStoredWeight } from '../../constants/units';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Icon } from '../shared/Icon';
 
 /**
  * Per-set log rows. Reps/weight are editable inline so a user can record what
  * they actually lifted rather than what was programmed.
+ *
+ * The weight column is entered and shown in the user's preferred unit but
+ * ALWAYS stored as kg — `set.weightKg` is written straight to Firestore, so a
+ * display value must never reach it unconverted (see constants/units.js).
  */
 export function SetLogTable({ sets, currentSetIndex, onChangeSet }) {
+  const weightUnit = useSettingsStore((s) => s.weightUnit);
+
+  // While a weight field is being typed into, show exactly what was typed.
+  // Rendering the stored kg back out on every keystroke would round-trip the
+  // number and visibly drift it under the cursor — the same reason the profile
+  // editor holds its form in display units (app/(profile)/edit.jsx).
+  const [drafts, setDrafts] = useState({});
+
+  const weightValue = (set, index) => {
+    if (drafts[index] !== undefined) return drafts[index];
+    if (!set.weightKg) return '';
+    return String(round1(toDisplayWeight(set.weightKg, weightUnit)));
+  };
+
+  const handleWeightChange = (index, text) => {
+    const typed = text.replace(/[^0-9.]/g, '');
+    setDrafts((prev) => ({ ...prev, [index]: typed }));
+    // Commit on each keystroke rather than on blur: "LOG SET" is reachable
+    // while this field still holds focus, and a blur-only commit would drop
+    // the last thing typed.
+    onChangeSet(index, { weightKg: toStoredWeight(Number(typed) || 0, weightUnit) });
+  };
+
+  const handleWeightBlur = (index) =>
+    setDrafts((prev) => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+
   return (
     <View style={styles.table}>
       <View style={styles.headerRow}>
         <Text style={[styles.header, styles.colSet]}>SET</Text>
         <Text style={[styles.header, styles.colInput]}>REPS</Text>
-        <Text style={[styles.header, styles.colInput]}>KG</Text>
+        <Text style={[styles.header, styles.colInput]}>{weightUnit.toUpperCase()}</Text>
         <Text style={[styles.header, styles.colStatus]}>STATUS</Text>
       </View>
 
@@ -37,10 +74,9 @@ export function SetLogTable({ sets, currentSetIndex, onChangeSet }) {
             />
 
             <TextInput
-              value={set.weightKg ? String(set.weightKg) : ''}
-              onChangeText={(t) =>
-                onChangeSet(index, { weightKg: Number(t.replace(/[^0-9.]/g, '')) || 0 })
-              }
+              value={weightValue(set, index)}
+              onChangeText={(t) => handleWeightChange(index, t)}
+              onBlur={() => handleWeightBlur(index)}
               keyboardType="decimal-pad"
               style={[styles.input, styles.colInput]}
               placeholder="0"

@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '../../constants/theme';
+import { formatWeight } from '../../constants/units';
+import { useSettingsStore } from '../../store/useSettingsStore';
 
 export function PRTrackerTable({ records }) {
+  const weightUnit = useSettingsStore((s) => s.weightUnit);
+
   if (records.length === 0) {
     return <Text style={styles.empty}>No personal records yet — log a few sessions.</Text>;
   }
@@ -18,7 +22,9 @@ export function PRTrackerTable({ records }) {
           <Text style={[styles.cell, styles.colName]} numberOfLines={1}>
             {record.name}
           </Text>
-          <Text style={[styles.cell, styles.colBest, styles.best]}>{`${record.weightKg} kg`}</Text>
+          <Text style={[styles.cell, styles.colBest, styles.best]}>
+            {formatWeight(record.weightKg, weightUnit)}
+          </Text>
           <Text style={[styles.cell, styles.colDate]}>{record.date.slice(5)}</Text>
         </View>
       ))}

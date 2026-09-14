@@ -1,4 +1,5 @@
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -24,9 +25,13 @@ export function AuthShell({ eyebrow, title, subtitle, children }) {
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 48 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.wordmark}>
-          GYM<Text style={styles.red}>BRO</Text>
-        </Text>
+        <Image
+          source={require('../../assets/brand/GymBroLogoPlain.png')}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityRole="image"
+          accessibilityLabel="GymBro"
+        />
         <View style={styles.header}>
           <Eyebrow>{eyebrow}</Eyebrow>
           <Heading level={0} style={styles.title}>
@@ -57,8 +62,10 @@ export function Field({ label, error, ...inputProps }) {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.surface.light },
   content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.lg },
-  wordmark: { ...typography.h1, fontSize: 26, color: colors.ink.black },
-  red: { color: colors.brand.red },
+  // Same asset and box as the dashboard header so the two can't drift apart
+  // (F12). The artwork is dark-on-transparent, which this screen's light
+  // background suits — see F19 before putting it on a dark surface.
+  logo: { width: 144, height: 36 },
   header: { gap: spacing.xs, marginTop: spacing.lg },
   title: { marginTop: spacing.xs },
   subtitle: { ...typography.body, color: colors.text.muted, marginTop: spacing.xs },

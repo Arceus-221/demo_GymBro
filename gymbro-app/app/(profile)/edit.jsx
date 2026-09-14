@@ -26,7 +26,7 @@ import {
   GENDERS,
 } from '../../constants/equipment';
 import { colors, radius, spacing, typography } from '../../constants/theme';
-import { toDisplayWeight, toStoredWeight } from '../../constants/units';
+import { round1, toDisplayWeight, toStoredWeight } from '../../constants/units';
 import { auth, db } from '../../services/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
@@ -279,12 +279,6 @@ export default function EditProfile() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-}
-
-/** One decimal is enough for a body weight and keeps lb values from looking noisy. */
-function round1(value) {
-  if (value == null) return null;
-  return Math.round(value * 10) / 10;
 }
 
 const styles = StyleSheet.create({

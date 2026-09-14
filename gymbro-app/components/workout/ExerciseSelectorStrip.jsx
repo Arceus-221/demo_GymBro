@@ -45,6 +45,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.2)',
     maxWidth: 190,
+    // Must be OPAQUE, not a translucent white lift like the rest of this
+    // screen: the red glow is absolutely positioned behind the strip, and
+    // anything see-through lets it bleed through the label (F3). ink.black
+    // over the screen's ink.deep also reads as a slight raise.
+    backgroundColor: colors.ink.black,
   },
   pillDone: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
   pillActive: { borderColor: '#FFFFFF', borderWidth: 2 },

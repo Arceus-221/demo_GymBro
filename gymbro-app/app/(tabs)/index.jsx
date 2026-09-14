@@ -132,7 +132,7 @@ export default function Dashboard() {
         </View>
 
         <View style={styles.statRow}>
-          <StatTile value={`${stats.currentStreakDays ?? 0} days`} label="Streak" accent />
+          <StatTile value={formatStreak(stats.currentStreakDays ?? 0)} label="Streak" accent />
           <StatTile value={`${completedThisWeek} / ${targetDays}`} label="Workouts" />
           <StatTile value={caloriesToday ? caloriesToday.toLocaleString() : '—'} label="Calories" />
         </View>
@@ -206,6 +206,10 @@ export default function Dashboard() {
       </Pressable>
     </View>
   );
+}
+
+function formatStreak(days) {
+  return `${days} ${days === 1 ? 'day' : 'days'}`;
 }
 
 function greeting() {
