@@ -143,5 +143,13 @@ const styles = StyleSheet.create({
   label: { ...typography.body, fontWeight: '700', color: colors.text.primary },
   destructive: { color: colors.brand.red },
   sub: { ...typography.small, fontSize: 11, color: colors.text.muted },
-  value: { ...typography.small, fontWeight: '700', color: colors.text.muted, maxWidth: 150 },
+  // flexShrink as per ExerciseSelectorStrip: a maxWidth alone does not make a
+  // Text ellipsize inside a row — it has to be shrinkable first (F5).
+  value: {
+    ...typography.small,
+    fontWeight: '700',
+    color: colors.text.muted,
+    maxWidth: 150,
+    flexShrink: 1,
+  },
 });

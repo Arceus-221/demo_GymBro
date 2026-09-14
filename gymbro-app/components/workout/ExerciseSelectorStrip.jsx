@@ -53,6 +53,10 @@ const styles = StyleSheet.create({
   },
   pillDone: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
   pillActive: { borderColor: '#FFFFFF', borderWidth: 2 },
-  text: { ...typography.eyebrow, fontSize: 9, color: colors.text.onDarkMuted },
+  // flexShrink is 0 by default in RN, so without this the label keeps its
+  // intrinsic width and overflows the pill's maxWidth instead of ellipsizing
+  // inside it — numberOfLines={1} has nothing to truncate against until the
+  // text is actually constrained (F5).
+  text: { ...typography.eyebrow, fontSize: 9, color: colors.text.onDarkMuted, flexShrink: 1 },
   textOn: { color: '#FFFFFF' },
 });
