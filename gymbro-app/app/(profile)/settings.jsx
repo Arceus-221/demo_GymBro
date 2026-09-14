@@ -12,12 +12,12 @@ import {
   View,
 } from 'react-native';
 import { ChipGroup } from '../../components/onboarding/ChipGroup';
-import { SettingsGroup, SettingsRow, SettingsSwitchRow } from '../../components/profile/SettingsRow';
+import { SettingsGroup, SettingsRow } from '../../components/profile/SettingsRow';
 import { Field } from '../../components/shared/AuthShell';
 import { Button } from '../../components/shared/Button';
 import { ScreenHeader } from '../../components/shared/ScreenHeader';
 import { Eyebrow, Heading } from '../../components/shared/Typography';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, THEME_MODES, typography } from '../../constants/theme';
 import { WEIGHT_UNITS } from '../../constants/units';
 import { deleteAccount, signOutUser } from '../../services/accountActions';
 import { authErrorMessage } from '../../services/authErrors';
@@ -25,13 +25,17 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 export default function Settings() {
+  const { styles } = useThemedStyles(makeStyles);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const userDoc = useUserProfileStore((s) => s.userDoc);
   const weightUnit = useSettingsStore((s) => s.weightUnit);
   const setWeightUnit = useSettingsStore((s) => s.setWeightUnit);
+  const themeMode = useSettingsStore((s) => s.themeMode);
+  const setThemeMode = useSettingsStore((s) => s.setThemeMode);
   const showError = useUIStore((s) => s.showError);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -85,16 +89,14 @@ export default function Settings() {
           </Text>
         </View>
 
-        <SettingsGroup label="Appearance">
-          <SettingsSwitchRow
-            icon="moon"
-            label="Dark mode"
-            sub="Not available yet — landing in a later update"
-            value={false}
-            onValueChange={() => {}}
-            disabled
-          />
-        </SettingsGroup>
+        <View style={styles.unitBlock}>
+          <Eyebrow>Appearance</Eyebrow>
+          <ChipGroup options={THEME_MODES} value={themeMode} onChange={setThemeMode} />
+          <Text style={styles.hint}>
+            System follows your device setting. The choice is saved on this device, so the
+            same account can be light on one phone and dark on another.
+          </Text>
+        </View>
 
         <SettingsGroup label="About">
           <SettingsRow icon="package" label="Version" value={version} />
@@ -123,6 +125,7 @@ export default function Settings() {
  * rather than half-way through the data wipe.
  */
 function DeleteAccountModal({ visible, onClose }) {
+  const { styles } = useThemedStyles(makeStyles);
   const showToast = useUIStore((s) => s.showToast);
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -188,14 +191,14 @@ function DeleteAccountModal({ visible, onClose }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   body: { padding: spacing.lg, gap: spacing.xl, paddingBottom: spacing.xxl },
   unitBlock: { gap: spacing.sm },
   hint: { ...typography.small, color: colors.text.muted, lineHeight: 18 },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  backdrop: { flex: 1, backgroundColor: colors.backdrop, justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     padding: spacing.xl,

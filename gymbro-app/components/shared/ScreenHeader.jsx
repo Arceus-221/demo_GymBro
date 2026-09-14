@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
 import { Icon } from './Icon';
+import { useThemedStyles } from './ThemeProvider';
 
 /**
  * Black bar with a back chevron and a centered title — the same treatment
@@ -12,6 +13,7 @@ import { Icon } from './Icon';
  *   `icon` is a name from components/shared/Icon.jsx
  */
 export function ScreenHeader({ title, onBack, action = null }) {
+  const { styles } = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
@@ -49,7 +51,7 @@ export function ScreenHeader({ title, onBack, action = null }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -57,8 +59,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
   },
-  title: { ...typography.label, fontSize: 13, color: '#FFFFFF' },
+  title: { ...typography.label, fontSize: 13, color: colors.text.inverse },
   spacer: { width: 22 },
 });

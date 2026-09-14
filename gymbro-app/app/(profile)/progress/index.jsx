@@ -9,11 +9,12 @@ import { Card } from '../../../components/shared/Card';
 import { Icon } from '../../../components/shared/Icon';
 import { LoadingSpinner } from '../../../components/shared/LoadingSpinner';
 import { Eyebrow, Heading } from '../../../components/shared/Typography';
-import { colors, radius, spacing, typography } from '../../../constants/theme';
+import { radius, spacing, typography } from '../../../constants/theme';
 import { toDateId } from '../../../hooks/useToday';
 import { db } from '../../../services/firebase';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useUserProfileStore } from '../../../store/useUserProfileStore';
+import { useThemedStyles } from '../../../components/shared/ThemeProvider';
 
 const RANGES = [
   { label: '1M', months: 1 },
@@ -28,6 +29,7 @@ const RANGES = [
  * and a 6-month collection-group listener would be needlessly expensive.
  */
 export default function Progress() {
+  const { styles } = useThemedStyles(makeStyles);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
@@ -138,6 +140,7 @@ export default function Progress() {
 }
 
 function SummaryTile({ value, label }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={styles.tileValue}>{value}</Text>
@@ -182,17 +185,17 @@ function deriveStats(logs) {
   return { personalRecords, volumeByMuscle, totalSessions };
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
   },
-  headerTitle: { ...typography.label, fontSize: 13, color: '#FFFFFF' },
+  headerTitle: { ...typography.label, fontSize: 13, color: colors.text.inverse },
   body: { padding: spacing.lg, gap: spacing.xl, paddingBottom: spacing.xxl },
   rangeRow: { flexDirection: 'row', gap: spacing.sm },
   range: {
@@ -205,13 +208,13 @@ const styles = StyleSheet.create({
   },
   rangeActive: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
   rangeText: { ...typography.eyebrow, fontSize: 10, color: colors.text.mid },
-  rangeTextActive: { color: '#FFFFFF' },
+  rangeTextActive: { color: colors.text.inverse },
   statRow: { flexDirection: 'row', gap: spacing.md },
   tile: {
     flex: 1,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     gap: 2,
   },
   tileValue: { ...typography.stat, fontSize: 20, color: colors.text.primary },

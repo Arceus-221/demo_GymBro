@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * The dashboard's hero card: red→black gradient feel with the day's session,
@@ -9,6 +10,7 @@ import { Icon } from '../shared/Icon';
  * expo-linear-gradient for one surface.
  */
 export function TodayWorkoutCard({ day, onStart, completed }) {
+  const { styles } = useThemedStyles(makeStyles);
   if (!day) return null;
 
   if (day.isRestDay) {
@@ -60,15 +62,15 @@ export function TodayWorkoutCard({ day, onStart, completed }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   card: {
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
     borderRadius: radius.xl,
     padding: spacing.xl,
     gap: spacing.md,
     overflow: 'hidden',
   },
-  restCard: { backgroundColor: colors.ink.deep },
+  restCard: { backgroundColor: colors.surface.inverseDeep },
   glowOne: {
     position: 'absolute',
     top: -70,
@@ -90,19 +92,19 @@ const styles = StyleSheet.create({
     opacity: 0.35,
   },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  eyebrow: { ...typography.eyebrow, color: 'rgba(255,255,255,0.65)' },
+  eyebrow: { ...typography.eyebrow, color: colors.onInverse.subtle },
   meta: { alignItems: 'flex-end', gap: 2 },
-  metaText: { ...typography.eyebrow, fontSize: 9, color: 'rgba(255,255,255,0.75)' },
-  title: { ...typography.h1, color: '#FFFFFF' },
-  restCopy: { ...typography.small, color: colors.text.onDarkMuted, lineHeight: 18 },
+  metaText: { ...typography.eyebrow, fontSize: 9, color: colors.onInverse.subtle },
+  title: { ...typography.h1, color: colors.text.inverse },
+  restCopy: { ...typography.small, color: colors.text.inverseMuted, lineHeight: 18 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   tag: {
     paddingHorizontal: spacing.md,
     paddingVertical: 5,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: colors.onInverse.raisedStrong,
   },
-  tagText: { ...typography.eyebrow, fontSize: 9, color: '#FFFFFF', letterSpacing: 1 },
+  tagText: { ...typography.eyebrow, fontSize: 9, color: colors.text.inverse, letterSpacing: 1 },
   cta: {
     marginTop: spacing.sm,
     backgroundColor: colors.brand.red,
@@ -114,5 +116,5 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   ctaPressed: { opacity: 0.85 },
-  ctaText: { ...typography.label, fontSize: 13, color: '#FFFFFF', letterSpacing: 1.5 },
+  ctaText: { ...typography.label, fontSize: 13, color: colors.text.inverse, letterSpacing: 1.5 },
 });

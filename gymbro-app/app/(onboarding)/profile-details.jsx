@@ -11,8 +11,10 @@ import {
 } from '../../constants/equipment';
 import { spacing } from '../../constants/theme';
 import { useOnboardingDraftStore } from '../../store/useOnboardingDraftStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 export default function ProfileDetailsStep() {
+  const { styles } = useThemedStyles(makeStyles);
   const router = useRouter();
   const draft = useOnboardingDraftStore((s) => s.draft);
   const setField = useOnboardingDraftStore((s) => s.setField);
@@ -100,6 +102,6 @@ export default function ProfileDetailsStep() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.lg },
 });

@@ -4,8 +4,13 @@
 
 | File | Size | Ratio | Used by |
 |---|---|---|---|
-| `GymBroLogoPlain.png` | 1200 × 300 | 4:1 landscape | App header (left), auth screens |
-| `GYMBROmainlogo.png` | 1024 × 1024 | 1:1 square | Loading screen |
+| `GymBroLogoPlain.png` | 1200 × 300 | 4:1 landscape | App header (left), auth screens — light mode |
+| `GymBroLogoPlain-white.png` | 2048 × 512 | 4:1 landscape | Same two surfaces — dark mode |
+| `GYMBROmainlogo.png` | 1024 × 1024 | 1:1 square | Loading screen (both themes) |
+
+The two plain variants are paired in `components/shared/BrandWordmark.jsx`, which picks
+one by the active theme. Nothing else should `require()` them directly, or the pair will
+drift.
 
 Those dimensions are ~3-4× the largest on-screen size, so they stay sharp on a 3x phone
 display. One high-resolution file per logo is enough — React Native downsamples cleanly,
@@ -15,15 +20,18 @@ and no `@2x`/`@3x` variants are needed at these sizes.
 looks correct today and turns into a visible white rectangle the moment dark mode lands
 (F7 in `FRONTEND_FIX_LOG.md`).
 
-### You will probably need a light variant later
+### Light variants — resolved 2026-09-14
 
-If the artwork is dark-on-transparent, it disappears against a dark background. Since
-dark mode is planned, it's worth exporting these at the same time:
+`GymBroLogoPlain-white.png` was added when dark mode landed, and closes F19 for the two
+surfaces that needed it.
 
-- `GymBroLogoPlain-light.png` — light/white version for dark surfaces
-- `GYMBROmainlogo-light.png` — same, for the loading screen
+**The loading screen needs no light variant.** It carries its own background in both
+themes by design rather than following the palette, so `GYMBROmainlogo.png` works
+unchanged. Those two values live in `colors.splash` (`constants/theme.js`).
 
-Not required now; the app is light-mode only until the theme refactor.
+Note the white variant is 2048 × 512 rather than matching the 1200 × 300 original. Both
+are 4:1 so they are interchangeable at any rendered size; the larger export is simply more
+headroom than needed at a 144pt render.
 
 ## Why PNG and not SVG here
 

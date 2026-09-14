@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { colors, typography } from '../../constants/theme';
+import { typography } from '../../constants/theme';
+import { useThemedStyles } from './ThemeProvider';
 
 /**
  * Percentage ring used by the Dashboard consistency tile and the Nutrition
@@ -11,12 +12,20 @@ export function ProgressRing({
   percent,
   size = 96,
   strokeWidth = 10,
-  color = colors.brand.red,
-  trackColor = 'rgba(255,255,255,0.15)',
+  color,
+  trackColor,
   label,
   sublabel,
-  labelColor = '#FFFFFF',
+  labelColor,
 }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
+
+  // Defaults resolve here rather than in the signature: a default parameter
+  // cannot read a hook. Both call sites place this ring on surface.inverse, so
+  // the fallbacks are the "on inverse" roles.
+  const arcColor = color ?? colors.brand.red;
+  const ringTrackColor = trackColor ?? colors.onInverse.raisedStrong;
+  const textColor = labelColor ?? colors.text.inverse;
   const clamped = Math.max(0, Math.min(100, Number.isFinite(percent) ? percent : 0));
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -34,7 +43,7 @@ export function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={trackColor}
+          stroke={ringTrackColor}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -42,7 +51,7 @@ export function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={arcColor}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="none"
@@ -52,11 +61,11 @@ export function ProgressRing({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      <Text style={[styles.label, { color: labelColor }]} numberOfLines={1}>
+      <Text style={[styles.label, { color: textColor }]} numberOfLines={1}>
         {label}
       </Text>
       {sublabel ? (
-        <Text style={[styles.sublabel, { color: labelColor }]} numberOfLines={1}>
+        <Text style={[styles.sublabel, { color: textColor }]} numberOfLines={1}>
           {sublabel}
         </Text>
       ) : null}
@@ -64,7 +73,7 @@ export function ProgressRing({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center' },
   label: { ...typography.h2, fontSize: 20 },
   sublabel: { ...typography.eyebrow, fontSize: 8, opacity: 0.7, letterSpacing: 1 },

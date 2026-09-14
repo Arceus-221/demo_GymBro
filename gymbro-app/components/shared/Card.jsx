@@ -1,7 +1,9 @@
 import { StyleSheet, View } from 'react-native';
-import { colors, radius, spacing } from '../../constants/theme';
+import { radius, spacing } from '../../constants/theme';
+import { useThemedStyles } from './ThemeProvider';
 
 export function Card({ children, style, dark = false, accent = false }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View
       style={[
@@ -16,17 +18,17 @@ export function Card({ children, style, dark = false, accent = false }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border.default,
     padding: spacing.lg,
   },
   dark: {
-    backgroundColor: colors.ink.black,
-    borderColor: colors.border.dark,
+    backgroundColor: colors.surface.inverse,
+    borderColor: colors.border.inverse,
   },
   accent: {
     borderColor: colors.brand.red,

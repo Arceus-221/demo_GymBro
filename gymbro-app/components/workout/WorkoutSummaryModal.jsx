@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { formatWeight } from '../../constants/units';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Button } from '../shared/Button';
 import { Eyebrow, Heading } from '../shared/Typography';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 const RPE_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export function WorkoutSummaryModal({ visible, onCancel, onConfirm, saving, stats }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const weightUnit = useSettingsStore((s) => s.weightUnit);
   const [perceivedExertion, setPerceivedExertion] = useState(7);
   const [notes, setNotes] = useState('');
@@ -75,6 +77,7 @@ export function WorkoutSummaryModal({ visible, onCancel, onConfirm, saving, stat
 }
 
 function SummaryStat({ value, label }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.summaryStat}>
       <Text style={styles.summaryValue}>{value}</Text>
@@ -83,10 +86,10 @@ function SummaryStat({ value, label }) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+const makeStyles = (colors) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: colors.backdrop, justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     padding: spacing.xl,
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.md,
     borderRadius: radius.md,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     gap: 2,
   },
   summaryValue: { ...typography.stat, fontSize: 18, color: colors.text.primary },
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
   },
   rpeActive: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
   rpeText: { ...typography.small, fontWeight: '800', color: colors.text.mid },
-  rpeTextActive: { color: '#FFFFFF' },
+  rpeTextActive: { color: colors.text.inverse },
   notes: {
     borderWidth: 1.5,
     borderColor: colors.border.default,
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     minHeight: 70,
     textAlignVertical: 'top',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
   cancel: { ...typography.small, color: colors.text.muted, textAlign: 'center' },
 });

@@ -1,10 +1,12 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
+import { useThemedStyles } from './ThemeProvider';
 
 export function LoadingSpinner({ message, dark = false, style }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <View style={[styles.wrap, style]}>
-      <ActivityIndicator color={dark ? '#FFFFFF' : colors.brand.red} size="large" />
+      <ActivityIndicator color={dark ? colors.text.inverse : colors.brand.redText} size="large" />
       {message ? (
         <Text style={[styles.message, dark && styles.messageDark]}>{message}</Text>
       ) : null}
@@ -22,8 +24,8 @@ export function backendLoadingMessage(loadingHint, normalMessage = 'Thinking...'
     : normalMessage;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.md },
   message: { ...typography.small, color: colors.text.muted, textAlign: 'center' },
-  messageDark: { color: colors.text.onDarkMuted },
+  messageDark: { color: colors.text.inverseMuted },
 });

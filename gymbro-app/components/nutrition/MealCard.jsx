@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 const MEAL_ICONS = {
   breakfast: 'breakfast',
@@ -12,6 +13,7 @@ const MEAL_ICONS = {
 };
 
 function MacroStat({ value, label }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.macroStat}>
       <Text style={styles.macroValue}>{value}</Text>
@@ -26,6 +28,7 @@ function MacroStat({ value, label }) {
  * a single description string — there's no localName/englishGloss pair.
  */
 export function MealCard({ meal, logged = false }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const macros = logged ? meal.aiEstimate ?? {} : meal;
   const description = logged ? meal.userDescription : meal.description;
 
@@ -61,13 +64,13 @@ function labelize(value) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   card: {
     padding: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border.default,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     gap: spacing.sm,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -76,7 +79,7 @@ const styles = StyleSheet.create({
   badge: {
     ...typography.eyebrow,
     fontSize: 8,
-    color: colors.brand.red,
+    color: colors.brand.redText,
   },
   description: { ...typography.body, fontWeight: '700', color: colors.text.primary, lineHeight: 20 },
   macros: { flexDirection: 'row', gap: spacing.sm, marginTop: 2 },
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
     borderRadius: radius.sm,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     alignItems: 'center',
     gap: 1,
   },

@@ -2,9 +2,10 @@ import { Redirect } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 import { randomQuote } from '../constants/quotes';
-import { colors, spacing, typography } from '../constants/theme';
+import { spacing, typography } from '../constants/theme';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUserProfileStore } from '../store/useUserProfileStore';
+import { useThemedStyles } from '../components/shared/ThemeProvider';
 
 /** Minimum time the brand screen stays up, even if auth resolves instantly. */
 const MIN_SPLASH_MS = 2500;
@@ -49,6 +50,7 @@ export default function Index() {
 }
 
 function Splash() {
+  const { styles } = useThemedStyles(makeStyles);
   // One quote per launch: useMemo with no deps, so re-renders (auth state
   // landing, the timer firing) don't swap the text mid-read.
   const quote = useMemo(() => randomQuote(), []);
@@ -78,12 +80,13 @@ function Splash() {
   );
 }
 
-const styles = StyleSheet.create({
-  // Light ground: the logo's wordmark and tagline are black, so they vanish on
-  // a dark surface until a light-variant asset exists.
+const makeStyles = (colors) => StyleSheet.create({
+  // Its own token, not surface.primary: the launch screen does not follow the
+  // theme yet because the logo is black artwork (F19), and a bespoke design is
+  // coming. Both live in colors.splash so this screen changes in one place.
   wrap: {
     flex: 1,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.splash.background,
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xxl,
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
     ...typography.body,
     fontSize: 15,
     fontWeight: '600',
-    color: colors.text.mid,
+    color: colors.splash.text,
     textAlign: 'center',
     lineHeight: 22,
     maxWidth: 300,

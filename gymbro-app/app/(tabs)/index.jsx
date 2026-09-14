@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { where } from 'firebase/firestore';
 import { useMemo, useState } from 'react';
 import {
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -17,18 +16,21 @@ import { TodayWorkoutCard } from '../../components/dashboard/TodayWorkoutCard';
 import { WeeklyGrid } from '../../components/dashboard/WeeklyGrid';
 import { Button } from '../../components/shared/Button';
 import { Card } from '../../components/shared/Card';
+import { BrandWordmark } from '../../components/shared/BrandWordmark';
 import { Icon } from '../../components/shared/Icon';
 import { ProgressRing } from '../../components/shared/ProgressRing';
 import { Eyebrow, Heading } from '../../components/shared/Typography';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { useCallBackend } from '../../hooks/useCallBackend';
 import { useFirestoreCollection } from '../../hooks/useFirestoreCollection';
 import { useFirestoreDoc } from '../../hooks/useFirestoreDoc';
 import { currentWeekDateIds, toDateId, todayLabel } from '../../hooks/useToday';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 export default function Dashboard() {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
@@ -93,16 +95,10 @@ export default function Dashboard() {
   return (
     <View style={styles.flex}>
       <View style={[styles.statusStrip, { paddingTop: insets.top + 8 }]}>
-        <Image
-          source={require('../../assets/brand/GymBroLogoPlain.png')}
-          style={styles.logo}
-          resizeMode="contain"
-          accessibilityRole="image"
-          accessibilityLabel="GymBro"
-        />
+        <BrandWordmark width={144} height={36} />
         <View style={styles.statusRight}>
           <View style={styles.streakBadge}>
-            <Icon name="flame" size={15} color={colors.brand.red} />
+            <Icon name="flame" size={15} color={colors.brand.redText} />
             <Text style={styles.streakCount}>{stats.currentStreakDays ?? 0}</Text>
           </View>
           <Pressable
@@ -126,7 +122,7 @@ export default function Dashboard() {
           <Heading level={1} style={styles.greeting}>
             {greeting()},
           </Heading>
-          <Heading level={1} color={colors.brand.red}>
+          <Heading level={1} color={colors.brand.redText}>
             {firstName.toUpperCase()}
           </Heading>
         </View>
@@ -225,21 +221,18 @@ function formatToday() {
     .toUpperCase();
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   // No black bar: the header sits on the page ground so it reads as one
   // surface, and so the logo's black wordmark stays legible (F12).
   statusStrip: {
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  // 4:1 asset, and its artwork occupies ~56% of the canvas height — hence the
-  // generous box for a ~20pt visual logo.
-  logo: { width: 144, height: 36 },
   statusRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   avatar: {
     width: 32,
@@ -249,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { ...typography.label, fontSize: 13, color: '#FFFFFF' },
+  avatarText: { ...typography.label, fontSize: 13, color: colors.text.inverse },
   streakBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   streakCount: { ...typography.label, fontSize: 13, color: colors.text.primary },
   body: { padding: spacing.xl, gap: spacing.xl, paddingBottom: spacing.xxl * 2 },
@@ -259,13 +252,13 @@ const styles = StyleSheet.create({
   noPlanCopy: { ...typography.body, color: colors.text.muted, lineHeight: 20 },
   splitRow: { flexDirection: 'row', gap: spacing.md },
   ringTile: {
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
     borderRadius: radius.lg,
     padding: spacing.lg,
     alignItems: 'center',
     gap: spacing.sm,
   },
-  ringEyebrow: { ...typography.eyebrow, fontSize: 9, color: 'rgba(255,255,255,0.6)' },
+  ringEyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.onInverse.subtle },
   section: { gap: spacing.md },
   quickRow: { flexDirection: 'row', gap: spacing.md },
   fab: {
@@ -274,7 +267,7 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
     borderWidth: 3,
     borderColor: colors.brand.red,
     alignItems: 'center',

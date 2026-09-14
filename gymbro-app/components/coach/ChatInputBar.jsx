@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 export function ChatInputBar({
   value,
@@ -11,6 +12,7 @@ export function ChatInputBar({
   isTranscribing,
   disabled,
 }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const canSend = value.trim().length > 0 && !disabled;
 
   return (
@@ -24,7 +26,7 @@ export function ChatInputBar({
         {isTranscribing ? (
           <ActivityIndicator size="small" color={colors.text.mid} />
         ) : (
-          <Icon name="mic" size={19} color={isRecording ? '#FFFFFF' : colors.text.mid} />
+          <Icon name="mic" size={19} color={isRecording ? colors.text.inverse : colors.text.mid} />
         )}
       </Pressable>
 
@@ -51,7 +53,7 @@ export function ChatInputBar({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -60,13 +62,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderTopWidth: 1,
     borderTopColor: colors.border.soft,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
   },
   mic: {
     width: 42,
     height: 42,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 11,
     borderRadius: radius.xl,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     ...typography.body,
     color: colors.text.primary,
   },

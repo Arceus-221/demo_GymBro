@@ -1,8 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
 import { Button } from './Button';
+import { useThemedStyles } from './ThemeProvider';
 
 export function EmptyState({ title, message, actionLabel, onAction, style }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={[styles.wrap, style]}>
       <Text style={styles.title}>{title}</Text>
@@ -14,7 +16,7 @@ export function EmptyState({ title, message, actionLabel, onAction, style }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   wrap: { alignItems: 'center', padding: spacing.xl, gap: spacing.sm },
   title: { ...typography.h2, fontSize: 18, color: colors.text.primary, textAlign: 'center' },
   message: {

@@ -1,7 +1,10 @@
 import { Stack } from 'expo-router';
-import { colors } from '../../constants/theme';
+import { useTheme } from '../../components/shared/ThemeProvider';
 
 export default function OnboardingLayout() {
+  // Stack contentStyle is not a StyleSheet, so it has to read the live
+  // palette here or the screen background never follows the theme.
+  const { colors } = useTheme();
   return (
     <Stack
       screenOptions={{
@@ -9,7 +12,7 @@ export default function OnboardingLayout() {
         // Back is driven by the footer's explicit Back button, not a swipe —
         // an accidental swipe mid-wizard is easy to do and confusing.
         gestureEnabled: false,
-        contentStyle: { backgroundColor: colors.surface.light },
+        contentStyle: { backgroundColor: colors.surface.primary },
       }}
     />
   );

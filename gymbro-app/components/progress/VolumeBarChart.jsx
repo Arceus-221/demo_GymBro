@@ -1,11 +1,13 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Sets per muscle group over the selected range. Plain views rather than a
  * charting dependency — these are rectangles.
  */
 export function VolumeBarChart({ data }) {
+  const { styles } = useThemedStyles(makeStyles);
   const entries = Object.entries(data);
   if (entries.length === 0) {
     return <Text style={styles.empty}>No training volume logged in this range yet.</Text>;
@@ -32,7 +34,7 @@ export function VolumeBarChart({ data }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   chart: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-end', height: 160 },
   column: { alignItems: 'center', gap: 4, width: 56 },
   track: { height: 110, width: 26, justifyContent: 'flex-end' },

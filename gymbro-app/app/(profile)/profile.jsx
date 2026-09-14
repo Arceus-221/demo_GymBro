@@ -4,11 +4,12 @@ import { Button } from '../../components/shared/Button';
 import { Card } from '../../components/shared/Card';
 import { ScreenHeader } from '../../components/shared/ScreenHeader';
 import { Eyebrow, Heading } from '../../components/shared/Typography';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { formatWeight } from '../../constants/units';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 /**
  * Read-only view of users/{uid}. Everything here comes from the shared
@@ -16,6 +17,7 @@ import { useUserProfileStore } from '../../store/useUserProfileStore';
  * and reflects edits from /(profile)/edit the moment they're written.
  */
 export default function Profile() {
+  const { styles } = useThemedStyles(makeStyles);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const userDoc = useUserProfileStore((s) => s.userDoc);
@@ -105,6 +107,7 @@ export default function Profile() {
 }
 
 function StatTile({ value, label }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={styles.tileValue}>{value}</Text>
@@ -114,6 +117,7 @@ function StatTile({ value, label }) {
 }
 
 function DetailRow({ label, value }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.detailRow}>
       <Text style={styles.detailLabel}>{label}</Text>
@@ -129,8 +133,8 @@ function labelize(value) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   body: { padding: spacing.lg, gap: spacing.xl, paddingBottom: spacing.xxl },
   identity: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   avatar: {
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { ...typography.hero, fontSize: 28, color: '#FFFFFF' },
+  avatarText: { ...typography.hero, fontSize: 28, color: colors.text.inverse },
   identityText: { flex: 1, gap: 2 },
   email: { ...typography.small, color: colors.text.muted },
   statRow: { flexDirection: 'row', gap: spacing.md },
@@ -149,12 +153,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     gap: 2,
   },
   tileValue: { ...typography.stat, fontSize: 20, color: colors.text.primary },
   tileLabel: { ...typography.eyebrow, fontSize: 8, color: colors.text.muted },
-  setup: { gap: spacing.sm, backgroundColor: colors.surface.muted },
+  setup: { gap: spacing.sm, backgroundColor: colors.surface.secondary },
   detailRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.lg },
   detailLabel: { ...typography.small, color: colors.text.muted },
   detailValue: {

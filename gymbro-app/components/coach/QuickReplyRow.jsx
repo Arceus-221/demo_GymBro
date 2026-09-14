@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Canned prompts that send on tap. Each carries the contextType to send with
@@ -14,6 +15,7 @@ export const QUICK_REPLIES = [
 ];
 
 export function QuickReplyRow({ onSelect, disabled }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <ScrollView
       horizontal
@@ -35,7 +37,7 @@ export function QuickReplyRow({ onSelect, disabled }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   // flexGrow:0 keeps the row at its content height instead of absorbing
   // leftover column space; alignItems:'center' overrides the content
   // container's default 'stretch', which is what let the chips grow into
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     borderWidth: 1.5,
     borderColor: colors.border.default,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     // Centre the label explicitly so a stretched chip can never strand it.
     alignItems: 'center',
     justifyContent: 'center',

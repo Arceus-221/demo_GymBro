@@ -6,17 +6,19 @@ import { OnboardingCard } from '../../components/onboarding/OnboardingCard';
 import { Card } from '../../components/shared/Card';
 import { Eyebrow } from '../../components/shared/Typography';
 import { DURATION_OPTIONS } from '../../constants/equipment';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { useCallBackend } from '../../hooks/useCallBackend';
 import { db } from '../../services/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOnboardingDraftStore } from '../../store/useOnboardingDraftStore';
 import { useUIStore } from '../../store/useUIStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 const DAY_OPTIONS = [2, 3, 4, 5, 6].map((n) => ({ value: n, label: `${n} days` }));
 const DURATION_CHIPS = DURATION_OPTIONS.map((n) => ({ value: n, label: `${n} min` }));
 
 export default function ScheduleSummaryStep() {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const draft = useOnboardingDraftStore((s) => s.draft);
   const setField = useOnboardingDraftStore((s) => s.setField);
   const resetDraft = useOnboardingDraftStore((s) => s.reset);
@@ -125,6 +127,7 @@ export default function ScheduleSummaryStep() {
 }
 
 function RecapRow({ label, value }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.recapRow}>
       <Text style={styles.recapLabel}>{label}</Text>
@@ -142,7 +145,7 @@ function labelize(value) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   notes: { gap: spacing.xs },
   notesInput: {
     borderWidth: 1.5,
@@ -154,9 +157,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
-  recap: { gap: spacing.sm, backgroundColor: colors.surface.muted },
+  recap: { gap: spacing.sm, backgroundColor: colors.surface.secondary },
   recapRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.lg },
   recapLabel: { ...typography.small, color: colors.text.muted },
   recapValue: {

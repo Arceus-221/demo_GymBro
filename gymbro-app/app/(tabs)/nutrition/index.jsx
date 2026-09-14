@@ -10,7 +10,7 @@ import { Card } from '../../../components/shared/Card';
 import { EmptyState } from '../../../components/shared/EmptyState';
 import { Icon } from '../../../components/shared/Icon';
 import { Eyebrow } from '../../../components/shared/Typography';
-import { colors, radius, spacing, typography } from '../../../constants/theme';
+import { radius, spacing, typography } from '../../../constants/theme';
 import { useCallBackend } from '../../../hooks/useCallBackend';
 import { useFirestoreDoc } from '../../../hooks/useFirestoreDoc';
 import { toDateId, todayLabel } from '../../../hooks/useToday';
@@ -19,8 +19,10 @@ import { computeDailyTargets, sumMealTotals } from '../../../services/nutritionT
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useUIStore } from '../../../store/useUIStore';
 import { useUserProfileStore } from '../../../store/useUserProfileStore';
+import { useThemedStyles } from '../../../components/shared/ThemeProvider';
 
 export default function Nutrition() {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
@@ -154,7 +156,7 @@ export default function Nutrition() {
         {proteinGap > 0 && loggedMeals.length > 0 ? (
           <Card dark style={styles.tip}>
             <View style={styles.tipHeader}>
-              <Icon name="coachActive" size={13} color={colors.brand.red} />
+              <Icon name="coachActive" size={13} color={colors.brand.redText} />
               <Text style={styles.tipEyebrow}>AI COACH TIP</Text>
             </View>
             <Text style={styles.tipText}>
@@ -162,7 +164,7 @@ export default function Nutrition() {
             </Text>
             <Pressable onPress={() => router.push('/(tabs)/coach')} style={styles.tipCtaRow}>
               <Text style={styles.tipCta}>ADJUST PLAN</Text>
-              <Icon name="forward" size={13} color={colors.brand.red} />
+              <Icon name="forward" size={13} color={colors.brand.redText} />
             </Pressable>
           </Card>
         ) : null}
@@ -178,6 +180,7 @@ export default function Nutrition() {
 }
 
 function Pill({ icon, label }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <View style={styles.pill}>
       <Icon name={icon} size={12} color={colors.text.mid} />
@@ -186,19 +189,19 @@ function Pill({ icon, label }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
   },
   headerCenter: { alignItems: 'center' },
-  headerEyebrow: { ...typography.eyebrow, fontSize: 8, color: 'rgba(255,255,255,0.6)' },
-  headerTitle: { ...typography.label, fontSize: 13, color: '#FFFFFF' },
+  headerEyebrow: { ...typography.eyebrow, fontSize: 8, color: colors.onInverse.subtle },
+  headerTitle: { ...typography.label, fontSize: 13, color: colors.text.inverse },
   refreshBusy: { opacity: 0.4 },
   body: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl * 2 },
   pills: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 7,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     borderWidth: 1,
     borderColor: colors.border.soft,
   },
@@ -226,12 +229,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.brand.red,
   },
-  addText: { ...typography.eyebrow, fontSize: 10, color: '#FFFFFF' },
+  addText: { ...typography.eyebrow, fontSize: 10, color: colors.text.inverse },
   section: { gap: spacing.md },
   tip: { gap: spacing.sm },
   tipHeader: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  tipEyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.brand.red },
-  tipText: { ...typography.body, color: '#FFFFFF', lineHeight: 20 },
+  tipEyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.brand.redText },
+  tipText: { ...typography.body, color: colors.text.inverse, lineHeight: 20 },
   tipCtaRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
-  tipCta: { ...typography.eyebrow, fontSize: 10, color: colors.brand.red },
+  tipCta: { ...typography.eyebrow, fontSize: 10, color: colors.brand.redText },
 });

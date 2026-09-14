@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { useCallBackend } from '../../hooks/useCallBackend';
 import { useFirestoreCollection } from '../../hooks/useFirestoreCollection';
 import { useFirestoreDoc } from '../../hooks/useFirestoreDoc';
@@ -24,8 +24,10 @@ import { ChatBubble } from './ChatBubble';
 import { ChatInputBar } from './ChatInputBar';
 import { QuickReplyRow } from './QuickReplyRow';
 import { StatusChipBar } from './StatusChipBar';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 export function ChatScreen({ conversationId: initialConversationId = null }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
@@ -230,15 +232,15 @@ export function ChatScreen({ conversationId: initialConversationId = null }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.mutedAlt },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.tertiary },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
   },
   avatar: {
     width: 34,
@@ -249,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerText: { flex: 1 },
-  headerTitle: { ...typography.label, fontSize: 12, color: '#FFFFFF' },
+  headerTitle: { ...typography.label, fontSize: 12, color: colors.text.inverse },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   headerStatus: { ...typography.eyebrow, fontSize: 8, color: colors.success, letterSpacing: 0.5 },
   messagesScroll: { flex: 1 },

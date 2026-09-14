@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Colour convention is deliberately reversed from a typical messenger:
@@ -8,6 +9,7 @@ import { Icon } from '../shared/Icon';
  * (Phase 3 §2.4).
  */
 export function ChatBubble({ role, content, pending, failed, onRetry, initial }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const isUser = role === 'user';
 
   return (
@@ -30,7 +32,7 @@ export function ChatBubble({ role, content, pending, failed, onRetry, initial })
         </View>
         {failed ? (
           <Pressable onPress={onRetry} hitSlop={6} style={styles.failedRow}>
-            <Icon name="warning" size={12} color={colors.brand.red} />
+            <Icon name="warning" size={12} color={colors.brand.redText} />
             <Text style={styles.failed}>failed to send — tap to retry</Text>
           </Pressable>
         ) : null}
@@ -45,7 +47,7 @@ export function ChatBubble({ role, content, pending, failed, onRetry, initial })
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-end' },
   rowUser: { justifyContent: 'flex-end' },
   column: { flexShrink: 1, gap: 4 },
@@ -57,13 +59,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarUser: { backgroundColor: colors.ink.black },
-  avatarInitial: { ...typography.label, fontSize: 12, color: '#FFFFFF' },
+  avatarUser: { backgroundColor: colors.surface.inverse },
+  avatarInitial: { ...typography.label, fontSize: 12, color: colors.text.inverse },
   bubble: { padding: spacing.md, borderRadius: radius.lg, maxWidth: 260 },
   bubbleAssistant: { backgroundColor: colors.brand.red, borderBottomLeftRadius: 4 },
-  bubbleUser: { backgroundColor: colors.ink.black, borderBottomRightRadius: 4 },
+  bubbleUser: { backgroundColor: colors.surface.inverse, borderBottomRightRadius: 4 },
   pending: { opacity: 0.6 },
-  text: { ...typography.body, color: '#FFFFFF', lineHeight: 20 },
+  text: { ...typography.body, color: colors.text.inverse, lineHeight: 20 },
   failedRow: { flexDirection: 'row', alignItems: 'center', gap: 4, justifyContent: 'flex-end' },
-  failed: { ...typography.small, color: colors.brand.red },
+  failed: { ...typography.small, color: colors.brand.redText },
 });

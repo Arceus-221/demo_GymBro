@@ -1,8 +1,10 @@
 import { StyleSheet, TextInput, View } from 'react-native';
-import { colors, radius, spacing } from '../../constants/theme';
+import { radius, spacing } from '../../constants/theme';
 import { Eyebrow } from '../shared/Typography';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 export function NumberField({ label, value, onChange, placeholder, suffix }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <View style={styles.field}>
       <Eyebrow>{suffix ? `${label} (${suffix})` : label}</Eyebrow>
@@ -21,7 +23,7 @@ export function NumberField({ label, value, onChange, placeholder, suffix }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   field: { flex: 1, gap: spacing.xs },
   input: {
     borderWidth: 1.5,
@@ -32,6 +34,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
 });

@@ -1,12 +1,14 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Read-only state chips — not a filter control (Phase 3 §2.4 revision note).
  * Each chip is `{ icon, label }`, where `icon` is a name from Icon.jsx.
  */
 export function StatusChipBar({ chips }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <ScrollView
       horizontal
@@ -24,7 +26,7 @@ export function StatusChipBar({ chips }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   // See QuickReplyRow: the row must keep its content height rather than
   // absorb leftover column space, and its chips must not stretch (F4).
   scroll: { flexGrow: 0 },
@@ -41,7 +43,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     borderWidth: 1,
     borderColor: colors.border.soft,
   },

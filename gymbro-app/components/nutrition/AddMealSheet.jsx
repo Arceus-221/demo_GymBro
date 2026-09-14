@@ -12,13 +12,14 @@ import {
   View,
 } from 'react-native';
 import { MEAL_TYPES } from '../../constants/equipment';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { useCallBackend } from '../../hooks/useCallBackend';
 import { useVoiceCapture } from '../../hooks/useVoiceCapture';
 import { Button } from '../shared/Button';
 import { ChipGroup } from '../onboarding/ChipGroup';
 import { Icon } from '../shared/Icon';
 import { Eyebrow, Heading } from '../shared/Typography';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * The "+ ADD" manual log flow: describe -> estimate -> preview -> save.
@@ -26,6 +27,7 @@ import { Eyebrow, Heading } from '../shared/Typography';
  * (Phase 3 §2.5).
  */
 export function AddMealSheet({ visible, onClose, onSave }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const { execute, isLoading, loadingHint } = useCallBackend();
   const voice = useVoiceCapture();
   const [mealType, setMealType] = useState('breakfast');
@@ -128,7 +130,7 @@ export function AddMealSheet({ visible, onClose, onSave }) {
                   <Icon
                     name="mic"
                     size={19}
-                    color={voice.isRecording ? '#FFFFFF' : colors.text.mid}
+                    color={voice.isRecording ? colors.text.inverse : colors.text.mid}
                   />
                 )}
               </Pressable>
@@ -176,6 +178,7 @@ export function AddMealSheet({ visible, onClose, onSave }) {
 }
 
 function PreviewStat({ value, label }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.previewStat}>
       <Text style={styles.previewValue}>{value}</Text>
@@ -184,10 +187,10 @@ function PreviewStat({ value, label }) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+const makeStyles = (colors) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: colors.backdrop, justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     // Bounded so the ScrollView inside it has a height to scroll within.
@@ -208,14 +211,14 @@ const styles = StyleSheet.create({
     minHeight: 70,
     textAlignVertical: 'top',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     ...typography.body,
   },
   mic: {
     width: 46,
     height: 46,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -224,7 +227,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.lg,
     borderRadius: radius.md,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
   previewRow: { flexDirection: 'row', gap: spacing.sm },
   previewStat: { flex: 1, alignItems: 'center', gap: 1 },

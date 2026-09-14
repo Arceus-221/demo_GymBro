@@ -25,13 +25,14 @@ import {
   FITNESS_GOALS,
   GENDERS,
 } from '../../constants/equipment';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { round1, toDisplayWeight, toStoredWeight } from '../../constants/units';
 import { auth, db } from '../../services/firebase';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useUserProfileStore } from '../../store/useUserProfileStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 const DAY_OPTIONS = [2, 3, 4, 5, 6].map((n) => ({ value: n, label: `${n} days` }));
 const DURATION_CHIPS = DURATION_OPTIONS.map((n) => ({ value: n, label: `${n} min` }));
@@ -43,6 +44,7 @@ const GOAL_CHIPS = FITNESS_GOALS.map(({ value, label }) => ({ value, label }));
  * verbatim and a field missing here would silently degrade plan quality.
  */
 export default function EditProfile() {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const userDoc = useUserProfileStore((s) => s.userDoc);
@@ -281,8 +283,8 @@ export default function EditProfile() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   body: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   loading: { ...typography.body, color: colors.text.muted, padding: spacing.xl },
   row: { flexDirection: 'row', gap: spacing.lg },
@@ -297,7 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
   hint: { ...typography.small, color: colors.text.muted, lineHeight: 18 },
 });

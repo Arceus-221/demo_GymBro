@@ -1,9 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Eyebrow } from '../shared/Typography';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /** Segmented / multi-select chip grid used across onboarding step 2 and 3. */
 export function ChipGroup({ label, options, value, onChange, multi = false }) {
+  const { styles } = useThemedStyles(makeStyles);
   const isSelected = (optionValue) =>
     multi ? (value || []).includes(optionValue) : value === optionValue;
 
@@ -32,7 +34,7 @@ export function ChipGroup({ label, options, value, onChange, multi = false }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   group: { gap: spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
@@ -41,9 +43,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     borderWidth: 1.5,
     borderColor: colors.border.default,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
   },
   chipSelected: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
   chipText: { ...typography.small, fontWeight: '700', color: colors.text.mid },
-  chipTextSelected: { color: '#FFFFFF' },
+  chipTextSelected: { color: colors.text.inverse },
 });

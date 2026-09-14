@@ -10,14 +10,16 @@ import {
 import { Field } from '../../components/shared/AuthShell';
 import { Button } from '../../components/shared/Button';
 import { ScreenHeader } from '../../components/shared/ScreenHeader';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
 import { changePassword } from '../../services/accountActions';
 import { authErrorMessage } from '../../services/authErrors';
 import { useUIStore } from '../../store/useUIStore';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 const MIN_LENGTH = 6;
 
 export default function ChangePassword() {
+  const { styles } = useThemedStyles(makeStyles);
   const router = useRouter();
   const showToast = useUIStore((s) => s.showToast);
 
@@ -103,9 +105,9 @@ export default function ChangePassword() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   body: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   intro: { ...typography.body, color: colors.text.muted, lineHeight: 20 },
-  error: { ...typography.small, color: colors.brand.red, fontWeight: '600' },
+  error: { ...typography.small, color: colors.brand.redText, fontWeight: '600' },
 });

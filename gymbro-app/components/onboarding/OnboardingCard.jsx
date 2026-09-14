@@ -1,9 +1,10 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Button } from '../shared/Button';
 import { Icon } from '../shared/Icon';
 import { Heading, TabbedEyebrow } from '../shared/Typography';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 const TOTAL_STEPS = 3;
 
@@ -22,6 +23,7 @@ export function OnboardingCard({
   nextDisabled = false,
   nextLoading = false,
 }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
@@ -66,8 +68,8 @@ export function OnboardingCard({
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   body: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xl, gap: spacing.xs },
   title: { marginTop: spacing.md },
   subtitle: { ...typography.body, color: colors.text.muted, marginTop: spacing.xs },

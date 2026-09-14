@@ -10,7 +10,7 @@ import { ExerciseSelectorStrip } from '../../../components/workout/ExerciseSelec
 import { InlineRestTimerCard } from '../../../components/workout/InlineRestTimerCard';
 import { SetLogTable } from '../../../components/workout/SetLogTable';
 import { WorkoutSummaryModal } from '../../../components/workout/WorkoutSummaryModal';
-import { colors, radius, spacing, typography } from '../../../constants/theme';
+import { radius, spacing, typography } from '../../../constants/theme';
 import { formatWeight } from '../../../constants/units';
 import { useFirestoreDoc } from '../../../hooks/useFirestoreDoc';
 import { useRestTimer } from '../../../hooks/useRestTimer';
@@ -21,8 +21,10 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { useUIStore } from '../../../store/useUIStore';
 import { useUserProfileStore } from '../../../store/useUserProfileStore';
+import { useThemedStyles } from '../../../components/shared/ThemeProvider';
 
 export default function WorkoutMode() {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
@@ -170,7 +172,7 @@ export default function WorkoutMode() {
           style={styles.backRow}
           accessibilityLabel="Go back"
         >
-          <Icon name="back" size={15} color={colors.text.onDarkMuted} />
+          <Icon name="back" size={15} color={colors.text.inverseMuted} />
           <Text style={styles.back}>Back</Text>
         </Pressable>
         <View style={styles.headerCenter}>
@@ -195,7 +197,7 @@ export default function WorkoutMode() {
 
       <ScrollView contentContainerStyle={styles.body}>
         <View>
-          <Eyebrow color={colors.text.onDarkMuted}>
+          <Eyebrow color={colors.text.inverseMuted}>
             {exercise.primaryMuscleGroup || 'Target'}
           </Eyebrow>
           <Text style={styles.exerciseName}>{exercise.name.toUpperCase()}</Text>
@@ -247,7 +249,7 @@ export default function WorkoutMode() {
         {isLastExercise ? (
           <Pressable onPress={() => setSummaryOpen(true)} style={styles.finish}>
             <Text style={styles.finishText}>FINISH WORKOUT</Text>
-            <Icon name="forward" size={16} color={colors.brand.red} />
+            <Icon name="forward" size={16} color={colors.brand.redText} />
           </Pressable>
         ) : (
           <Pressable
@@ -260,7 +262,7 @@ export default function WorkoutMode() {
             <Text style={styles.nextText} numberOfLines={1}>
               {`NEXT: ${session.exercises[session.exerciseIndex + 1]?.name ?? ''}`}
             </Text>
-            <Icon name="forward" size={13} color={colors.text.onDarkMuted} />
+            <Icon name="forward" size={13} color={colors.text.inverseMuted} />
           </Pressable>
         )}
       </ScrollView>
@@ -277,12 +279,14 @@ export default function WorkoutMode() {
 }
 
 function DarkShell({ children, insets }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={[styles.flex, styles.centered, { paddingTop: insets.top + 40 }]}>{children}</View>
   );
 }
 
 function BigTile({ label, value }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={styles.tileLabel}>{label}</Text>
@@ -320,10 +324,10 @@ function computeStreak(lastWorkoutDate, today, currentStreak) {
   return lastWorkoutDate === toDateId(yesterday) ? currentStreak + 1 : 1;
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.ink.deep },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.inverseDeep },
   centered: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  muted: { ...typography.body, color: colors.text.onDarkMuted },
+  muted: { ...typography.body, color: colors.text.inverseMuted },
   glow: {
     position: 'absolute',
     top: -110,
@@ -343,24 +347,24 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  back: { ...typography.small, color: colors.text.onDarkMuted, fontWeight: '700' },
+  back: { ...typography.small, color: colors.text.inverseMuted, fontWeight: '700' },
   headerCenter: { flex: 1, alignItems: 'center' },
-  headerEyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.text.onDarkMuted },
-  headerDay: { ...typography.label, fontSize: 12, color: '#FFFFFF' },
-  headerCount: { ...typography.eyebrow, fontSize: 10, color: colors.brand.red },
+  headerEyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.text.inverseMuted },
+  headerDay: { ...typography.label, fontSize: 12, color: colors.text.inverse },
+  headerCount: { ...typography.eyebrow, fontSize: 10, color: colors.brand.redText },
   body: { padding: spacing.xl, paddingTop: spacing.sm, gap: spacing.lg, paddingBottom: 120 },
-  exerciseName: { ...typography.hero, fontSize: 34, color: colors.brand.red, marginTop: 4 },
-  cue: { ...typography.small, color: colors.text.onDarkMuted, marginTop: 6, lineHeight: 18 },
+  exerciseName: { ...typography.hero, fontSize: 34, color: colors.brand.redText, marginTop: 4 },
+  cue: { ...typography.small, color: colors.text.inverseMuted, marginTop: 6, lineHeight: 18 },
   tiles: { flexDirection: 'row', gap: spacing.md },
   tile: {
     flex: 1,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: colors.onInverse.raised,
     gap: 4,
   },
-  tileLabel: { ...typography.eyebrow, fontSize: 8, color: colors.text.onDarkMuted },
-  tileValue: { ...typography.h2, fontSize: 17, color: '#FFFFFF' },
+  tileLabel: { ...typography.eyebrow, fontSize: 8, color: colors.text.inverseMuted },
+  tileValue: { ...typography.h2, fontSize: 17, color: colors.text.inverse },
   actionRow: { flexDirection: 'row', gap: spacing.md },
   logButton: {
     flex: 2,
@@ -372,25 +376,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
   },
-  logButtonDone: { backgroundColor: 'rgba(255,255,255,0.15)' },
-  logButtonText: { ...typography.label, fontSize: 13, color: '#FFFFFF', letterSpacing: 1.5 },
+  logButtonDone: { backgroundColor: colors.onInverse.raisedStrong },
+  logButtonText: { ...typography.label, fontSize: 13, color: colors.text.inverse, letterSpacing: 1.5 },
   restButton: {
     flex: 1,
     paddingVertical: spacing.lg,
     borderRadius: radius.pill,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: colors.onInverse.placeholder,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
   },
-  restButtonText: { ...typography.label, fontSize: 12, color: '#FFFFFF' },
+  restButtonText: { ...typography.label, fontSize: 12, color: colors.text.inverse },
   next: { paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'center', gap: 6 },
   nextText: {
     ...typography.eyebrow,
     fontSize: 10,
-    color: colors.text.onDarkMuted,
+    color: colors.text.inverseMuted,
     flexShrink: 1,
   },
   finish: {
@@ -403,5 +407,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
   },
-  finishText: { ...typography.label, fontSize: 13, color: colors.brand.red, letterSpacing: 1.5 },
+  finishText: { ...typography.label, fontSize: 13, color: colors.brand.redText, letterSpacing: 1.5 },
 });

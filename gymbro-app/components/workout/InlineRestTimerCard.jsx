@@ -1,9 +1,11 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /** In-flow rest timer — deliberately a card, not a blocking modal overlay. */
 export function InlineRestTimerCard({ secondsLeft, onSkip }) {
+  const { styles } = useThemedStyles(makeStyles);
   const minutes = Math.floor(secondsLeft / 60);
   const seconds = secondsLeft % 60;
 
@@ -21,7 +23,7 @@ export function InlineRestTimerCard({ secondsLeft, onSkip }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -31,10 +33,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.brand.red,
-    backgroundColor: 'rgba(239,0,0,0.12)',
+    backgroundColor: colors.onInverse.brandWash,
   },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  label: { ...typography.eyebrow, fontSize: 9, color: '#FFFFFF' },
-  time: { ...typography.h2, fontSize: 22, color: '#FFFFFF' },
-  skip: { ...typography.eyebrow, fontSize: 10, color: colors.brand.red },
+  label: { ...typography.eyebrow, fontSize: 9, color: colors.text.inverse },
+  time: { ...typography.h2, fontSize: 22, color: colors.text.inverse },
+  skip: { ...typography.eyebrow, fontSize: 10, color: colors.brand.redText },
 });

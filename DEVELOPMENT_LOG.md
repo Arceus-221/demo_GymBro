@@ -5,6 +5,181 @@ the actual codebase (not just what the docs claim). New entries go on top.
 
 ---
 
+## 2026-09-14 — Light/dark theming (F7 + F11)
+
+**Scope:** Softened the pure-black chrome, then built the theme system it was blocking.
+56 files changed, +598/−320. Uncommitted at time of writing.
+
+### Tokens are named by role now, not by colour
+
+The old palette named appearances — `surface.light`, `ink.black`, `text.onDark` — which
+become lies the moment a second palette exists. Renamed across 45 files, 87 references:
+
+| Was | Now | Why |
+|---|---|---|
+| `surface.light` | `surface.primary` | the page ground, whatever colour that is |
+| `surface.muted` / `mutedAlt` | `surface.secondary` / `tertiary` | raised surfaces |
+| `ink.black` / `ink.deep` | `surface.inverse` / `inverseDeep` | the contrasting surface |
+| `text.onDark` / `onDarkMuted` | `text.inverse` / `inverseMuted` | text on that surface |
+| `border.dark` | `border.inverse` | ditto |
+
+`surface.inverse` is the interesting one: in light mode it is a dark chrome on a light
+page, and in dark mode it inverts mechanism and becomes a *raised* surface — same role,
+opposite direction. Naming it by role is what lets one token cover both.
+
+### F11 — the pure blacks are gone
+
+`ink.black` (#111111) and `ink.deep` (#0A0A0A) were the tab bar, headers, dark cards, the
+FAB and Workout Mode's ground. They read as hard cutouts against the white page and had
+nowhere to go in dark mode. Now #1F2125 and #17181B — soft charcoals in the same neutral
+family as the light greys rather than holes punched in them.
+
+### The dark palette is deliberately quiet
+
+- Base is #121316, not true black, so raised surfaces have somewhere to go.
+- Text is #F5F6F8, not #FFFFFF. At full white on a dark ground the halation makes long
+  text harder to read; at this value it is indistinguishable from white in use.
+- **Two reds, because one value cannot do both jobs on a dark ground.** The first pass
+  used a single desaturated #E5484D, which read as washed out — too subtle to carry the
+  brand. Split instead:
+  - `brand.red` **#D12F38** — fills: buttons, pills, the FAB, selected states. Deep and
+    saturated enough to look considered rather than lit, and it carries a near-white label
+    at 4.65:1, which the lighter red could not (3.62:1).
+  - `brand.redText` **#E9575C** — red *text* and small glyphs sitting ON a dark surface,
+    where the fill red drops to 3.7:1 and fails small text. This is the lightest value
+    that clears 4.5:1 against page, card and chrome alike; anything lighter drifts pink
+    and starts to glow.
+
+  The split is mechanical to apply and was: 33 text/glyph uses point at `redText`, 42
+  fills keep `red`. `ProgressRing`'s arc deliberately stays on the fill red — it is a
+  10px stroke, a large graphic rather than text, and the solid red is the intended look.
+  In light mode the two are the same value (#EF0000 already clears 4.5:1 on white), so
+  nothing there changed.
+- `success` was softened #3DD68C → **#3BAC79**. The first value read as mint neon against
+  the near-black. The darker green still clears 4.5:1 for the 8px status text in the chat
+  header and also improves the near-white label on the success toast.
+
+**Contrast verified numerically** (WCAG relative luminance), since none of this has been
+seen on a screen yet:
+
+| Pair | Dark | Target |
+|---|---|---|
+| body text on page | 17.18:1 | 4.5 |
+| secondary text | 10.94:1 | 4.5 |
+| muted text | 7.11:1 | 4.5 |
+| text on card | 15.95:1 | 4.5 |
+| label on red fill | 4.65:1 | 4.5 |
+| red fill vs page (large) | 3.69:1 | 3.0 |
+| red text on page | 5.29:1 | 4.5 |
+| red text on chrome (tab label) | 4.64:1 | 4.5 |
+| success text on chrome | 5.71:1 | 4.5 |
+
+Every checked dark pair passes. **One pre-existing light-mode failure surfaced and was
+left alone:** `text.muted` (#888888) on white is 3.54:1 against a 4.5 target. It predates
+this work and changing it would alter the light design, so it is flagged, not fixed.
+
+### How components consume it
+
+`StyleSheet.create` at module scope captures colours once at import — the reason mutating
+a palette object re-rendered nothing. Each of **49 files** now declares a factory and calls
+one hook:
+
+```js
+const { styles, colors } = useThemedStyles(makeStyles);
+// ...
+const makeStyles = (colors) => StyleSheet.create({ ... });
+```
+
+The conversion was scripted; the stylesheet bodies are untouched. Four places needed hand
+work because a **default parameter cannot read a hook** — `Typography`, `ProgressRing`,
+`Icon` and the five route `_layout.jsx` files all defaulted a prop to a palette value in
+the signature. They resolve their fallback in the body instead, so `color` stays an
+override rather than a frozen default.
+
+**56 hardcoded colour literals across 23 files** were folded into tokens at the same time —
+these were invisible to a `colors.*` grep and would have produced white-on-white. Most
+were `#FFFFFF` acting as "text on a dark surface" (`text.inverse`); the `rgba(255,255,255,…)`
+family became a named `onInverse` scale. One needed judgement: `SelectRow`'s selected icon
+tile is a white *background*, not white *text*, so it maps to `surface.primary` — identical
+in light mode, but `text.inverse` would have made it the brightest thing on a dark screen.
+
+**There is no longer a `colors` export.** Reaching for a colour outside the hook is now a
+lint error rather than a silent bug that only appears in dark mode.
+
+### The transition is a wash, not a cut
+
+Swapping palettes re-renders every surface on one frame and the screen inverts at once,
+which reads as a glitch. `ThemeProvider` instead fades a cover in the *incoming* background
+colour over the tree (140ms), swaps the palette while it is opaque, and fades out (240ms).
+
+Zustand rehydrates the persisted choice from AsyncStorage asynchronously, so a dark-mode
+user's first paint is light and then flips. That is not a change the user made, so it is
+detected via `persist.hasHydrated()` and applied without animation — otherwise every cold
+start would open with a wash.
+
+`StatusBar` is driven by the resolved scheme rather than `style="auto"`, which follows the
+OS and would show dark glyphs on our dark ground whenever a user forces a theme that
+differs from their device.
+
+### F19 — closed
+
+`GymBroLogoPlain.png` and `GYMBROmainlogo.png` are black-on-transparent and vanish on a
+dark ground. Three surfaces host them: the dashboard header, both auth screens, and the
+launch screen.
+
+- **Header and auth** render `components/shared/BrandWordmark.jsx`, which pairs the
+  original with `GymBroLogoPlain-white.png` (added 2026-09-14, 2048 × 512, RGBA) and picks
+  one by the active scheme. One component owns the pairing, so the two surfaces cannot
+  drift — which was F12's actual point — and nothing else should `require()` either file.
+- **The launch screen needs no light variant.** It carries its own background in both
+  themes by design rather than following the palette, so `GYMBROmainlogo.png` works
+  unchanged. Its two values live in `colors.splash`.
+
+The white export is 2048 × 512 against the original's 1200 × 300. Both are 4:1 so they are
+interchangeable at any rendered size; the larger file is just more headroom than a 144pt
+render needs.
+
+### Settings
+
+The dead "Dark mode" switch — hardcoded `value={false}`, `disabled`, "Not available yet" —
+is replaced by a System / Light / Dark `ChipGroup`, matching the weight-units control
+already on that screen. A binary switch would have hidden the `system` option. The choice
+persists per device in `useSettingsStore`, consistent with that store's existing argument
+that display preferences are device-local and deliberately outside `users/{uid}`.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `npx expo export --platform ios --platform android` | **Bundles clean.** 4.8MB / 5.0MB |
+| `npm run lint` | **0 errors**, 14 warnings (was 9; +5 are the same `useRef().current` idiom in ThemeProvider) |
+| `npm run typecheck` | **Clean** |
+| Contrast ratios, both palettes | Computed — see table above |
+
+**Not seen running, in either theme.** Everything above is reasoned from source, bundled,
+and checked numerically. Nobody has looked at dark mode on a device. The transition timing
+in particular is a judgement that needs eyes on it.
+
+### Open items after this session
+
+1. Frontend has no tests; backend has 4 API tests and no AI-controller coverage. **Open.**
+2. No end-to-end run against a real Firebase project. **Open.**
+3. ~~Lint/typecheck tooling.~~ **Closed** (previous entry).
+4. Web platform declared in `app.json` but not installed. **Open.**
+5. Demo account seeding. **Open.**
+6. ~~Dark mode (F7) unstarted.~~ **Built, unverified on device.** F11 is closed with it.
+7. ~~F19 light logo variants.~~ **Closed** — `GymBroLogoPlain-white.png` added and wired
+   through `BrandWordmark`. The launch screen needs no variant by design.
+8. **New:** the launch screen is awaiting a design; `colors.splash` is the single place it
+   will change.
+9. **New:** light-mode `text.muted` is 3.54:1 on white, below the 4.5 target. Pre-existing.
+10. **New:** the success toast puts near-white text on a green fill in both themes and
+    clears neither 4.5:1. Softening the dark green improved it but did not resolve it —
+    reaching target needs a much deeper green or dark text on the fill, which is a
+    component design decision rather than a palette one. Pre-existing.
+
+---
+
 ## 2026-09-14 — Frontend defect pass, and CI quality gates made functional
 
 **Scope:** Closed every open defect in `FRONTEND_FIX_LOG.md`, then fixed the CI jobs that

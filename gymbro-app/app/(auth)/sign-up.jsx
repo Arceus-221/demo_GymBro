@@ -5,11 +5,13 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AuthShell, Field } from '../../components/shared/AuthShell';
 import { Button } from '../../components/shared/Button';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
 import { authErrorMessage } from '../../services/authErrors';
 import { auth, db } from '../../services/firebase';
+import { useThemedStyles } from '../../components/shared/ThemeProvider';
 
 export default function SignUp() {
+  const { styles } = useThemedStyles(makeStyles);
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,9 +106,9 @@ export default function SignUp() {
   );
 }
 
-const styles = StyleSheet.create({
-  error: { ...typography.small, color: colors.brand.red, fontWeight: '600' },
+const makeStyles = (colors) => StyleSheet.create({
+  error: { ...typography.small, color: colors.brand.redText, fontWeight: '600' },
   footer: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', justifyContent: 'center' },
   footerText: { ...typography.small, color: colors.text.muted },
-  link: { ...typography.label, fontSize: 12, color: colors.brand.red },
+  link: { ...typography.label, fontSize: 12, color: colors.brand.redText },
 });

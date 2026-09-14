@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 export function StatTile({ value, label, accent = false }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <View style={[styles.tile, accent && styles.accent]}>
       <Text style={[styles.value, accent && styles.valueAccent]} numberOfLines={1}>
@@ -12,7 +14,7 @@ export function StatTile({ value, label, accent = false }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   tile: {
     flex: 1,
     paddingVertical: spacing.lg,
@@ -20,11 +22,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border.default,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     gap: 2,
   },
   accent: { borderColor: colors.brand.red, backgroundColor: colors.brand.redTint },
   value: { ...typography.stat, fontSize: 20, color: colors.text.primary },
-  valueAccent: { color: colors.brand.red },
+  valueAccent: { color: colors.brand.redText },
   label: { ...typography.eyebrow, fontSize: 9, color: colors.text.muted },
 });

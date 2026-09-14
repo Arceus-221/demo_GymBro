@@ -8,12 +8,13 @@ import { AppState, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorToast } from '../components/shared/ErrorToast';
 import { OfflineBanner } from '../components/shared/OfflineBanner';
-import { colors } from '../constants/theme';
+
 import { wakeBackend } from '../services/apiClient';
 import { auth, db } from '../services/firebase';
 import { useAuthStore } from '../store/useAuthStore';
 import { useConnectivityStore } from '../store/useConnectivityStore';
 import { useUserProfileStore } from '../store/useUserProfileStore';
+import { ThemeProvider, useThemedStyles } from '../components/shared/ThemeProvider';
 
 const WAKE_THROTTLE_MS = 60_000;
 
@@ -68,13 +69,34 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="auto" />
+      <ThemeProvider>
+        <ThemedShell />
+      </ThemeProvider>
+    </SafeAreaProvider>
+  );
+}
+
+/**
+ * Everything that reads the theme lives below the provider. Split out of
+ * RootLayout because a component cannot consume a context it renders itself.
+ */
+function ThemedShell() {
+  const { styles, scheme } = useThemedStyles(makeStyles);
+
+  return (
+    <>
+      {/*
+        Driven by the resolved scheme, not "auto". "auto" follows the OS, which
+        is wrong the moment a user forces a theme that differs from it — dark
+        status-bar glyphs on our dark ground.
+      */}
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <View style={styles.root}>
         <OfflineBanner />
         <Slot />
         <ErrorToast />
       </View>
-    </SafeAreaProvider>
+    </>
   );
 }
 
@@ -125,6 +147,6 @@ function useProtectedRoute() {
   }, [navigationState?.key, user, userDoc, isInitializing, segments, router]);
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.surface.primary },
 });

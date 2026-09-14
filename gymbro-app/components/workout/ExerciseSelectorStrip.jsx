@@ -1,9 +1,11 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /** Horizontal pill scroller — ✓ for finished exercises, tap to jump. */
 export function ExerciseSelectorStrip({ exercises, activeIndex, onSelect }) {
+  const { styles } = useThemedStyles(makeStyles);
   return (
     <ScrollView
       horizontal
@@ -33,7 +35,7 @@ export function ExerciseSelectorStrip({ exercises, activeIndex, onSelect }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   strip: { gap: spacing.sm, paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
   pill: {
     flexDirection: 'row',
@@ -43,20 +45,20 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: colors.onInverse.outline,
     maxWidth: 190,
     // Must be OPAQUE, not a translucent white lift like the rest of this
     // screen: the red glow is absolutely positioned behind the strip, and
     // anything see-through lets it bleed through the label (F3). ink.black
     // over the screen's ink.deep also reads as a slight raise.
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
   },
   pillDone: { backgroundColor: colors.brand.red, borderColor: colors.brand.red },
-  pillActive: { borderColor: '#FFFFFF', borderWidth: 2 },
+  pillActive: { borderColor: colors.text.inverse, borderWidth: 2 },
   // flexShrink is 0 by default in RN, so without this the label keeps its
   // intrinsic width and overflows the pill's maxWidth instead of ellipsizing
   // inside it — numberOfLines={1} has nothing to truncate against until the
   // text is actually constrained (F5).
-  text: { ...typography.eyebrow, fontSize: 9, color: colors.text.onDarkMuted, flexShrink: 1 },
-  textOn: { color: '#FFFFFF' },
+  text: { ...typography.eyebrow, fontSize: 9, color: colors.text.inverseMuted, flexShrink: 1 },
+  textOn: { color: colors.text.inverse },
 });

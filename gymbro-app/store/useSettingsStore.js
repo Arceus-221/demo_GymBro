@@ -17,7 +17,12 @@ export const useSettingsStore = create(
     (set) => ({
       weightUnit: 'kg', // 'kg' | 'lb'
 
+      // 'system' follows the OS setting and is the default, so the app matches
+      // whatever the device already does before the user expresses a choice.
+      themeMode: 'system', // 'system' | 'light' | 'dark'
+
       setWeightUnit: (weightUnit) => set({ weightUnit }),
+      setThemeMode: (themeMode) => set({ themeMode }),
     }),
     {
       name: 'gymbro-settings',

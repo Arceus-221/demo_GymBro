@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { useUIStore } from '../../store/useUIStore';
+import { useThemedStyles } from './ThemeProvider';
 
 const AUTO_DISMISS_MS = 4000;
 
 /** Single global toast surface, consuming the Phase 2 §7.6 error contract. */
 export function ErrorToast() {
+  const { styles } = useThemedStyles(makeStyles);
   const toast = useUIStore((s) => s.toast);
   const clearToast = useUIStore((s) => s.clearToast);
   const insets = useSafeAreaInsets();
@@ -35,17 +37,17 @@ export function ErrorToast() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   toast: {
     position: 'absolute',
     left: spacing.lg,
     right: spacing.lg,
-    backgroundColor: colors.ink.black,
+    backgroundColor: colors.surface.inverse,
     borderRadius: radius.md,
     padding: spacing.lg,
     zIndex: 999,
   },
   error: { backgroundColor: colors.brand.red },
   success: { backgroundColor: colors.success },
-  text: { ...typography.body, color: '#FFFFFF', fontWeight: '600' },
+  text: { ...typography.body, color: colors.text.inverse, fontWeight: '600' },
 });

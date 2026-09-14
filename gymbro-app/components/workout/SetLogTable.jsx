@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { round1, toDisplayWeight, toStoredWeight } from '../../constants/units';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Per-set log rows. Reps/weight are editable inline so a user can record what
@@ -14,6 +15,7 @@ import { Icon } from '../shared/Icon';
  * display value must never reach it unconverted (see constants/units.js).
  */
 export function SetLogTable({ sets, currentSetIndex, onChangeSet }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const weightUnit = useSettingsStore((s) => s.weightUnit);
 
   // While a weight field is being typed into, show exactly what was typed.
@@ -87,7 +89,7 @@ export function SetLogTable({ sets, currentSetIndex, onChangeSet }) {
               <Icon
                 name={set.completed ? 'check' : isCurrent ? 'dot' : 'circle'}
                 size={set.completed ? 17 : 13}
-                color={set.completed ? colors.brand.red : colors.text.onDarkMuted}
+                color={set.completed ? colors.brand.redText : colors.text.inverseMuted}
               />
             </View>
           </View>
@@ -97,11 +99,11 @@ export function SetLogTable({ sets, currentSetIndex, onChangeSet }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   table: {
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: colors.onInverse.hairline,
     overflow: 'hidden',
   },
   headerRow: {
@@ -109,23 +111,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: colors.onInverse.raisedSoft,
   },
-  header: { ...typography.eyebrow, fontSize: 9, color: colors.text.onDarkMuted },
+  header: { ...typography.eyebrow, fontSize: 9, color: colors.text.inverseMuted },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.08)',
+    borderTopColor: colors.onInverse.divider,
   },
-  rowCurrent: { backgroundColor: 'rgba(239,0,0,0.12)' },
+  rowCurrent: { backgroundColor: colors.onInverse.brandWash },
   rowDone: { opacity: 0.75 },
-  cell: { ...typography.body, color: '#FFFFFF', fontWeight: '700' },
+  cell: { ...typography.body, color: colors.text.inverse, fontWeight: '700' },
   input: {
     ...typography.body,
-    color: '#FFFFFF',
+    color: colors.text.inverse,
     fontWeight: '700',
     paddingVertical: 6,
   },

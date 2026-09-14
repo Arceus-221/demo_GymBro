@@ -1,5 +1,4 @@
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -9,11 +8,14 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Eyebrow, Heading } from './Typography';
+import { BrandWordmark } from './BrandWordmark';
+import { useThemedStyles } from './ThemeProvider';
 
 /** Shared frame for sign-in / sign-up so the two screens can't drift apart. */
 export function AuthShell({ eyebrow, title, subtitle, children }) {
+  const { styles } = useThemedStyles(makeStyles);
   const insets = useSafeAreaInsets();
 
   return (
@@ -25,13 +27,7 @@ export function AuthShell({ eyebrow, title, subtitle, children }) {
         contentContainerStyle={[styles.content, { paddingTop: insets.top + 48 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <Image
-          source={require('../../assets/brand/GymBroLogoPlain.png')}
-          style={styles.logo}
-          resizeMode="contain"
-          accessibilityRole="image"
-          accessibilityLabel="GymBro"
-        />
+        <BrandWordmark width={144} height={36} />
         <View style={styles.header}>
           <Eyebrow>{eyebrow}</Eyebrow>
           <Heading level={0} style={styles.title}>
@@ -46,6 +42,7 @@ export function AuthShell({ eyebrow, title, subtitle, children }) {
 }
 
 export function Field({ label, error, ...inputProps }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <View style={styles.field}>
       <Eyebrow>{label}</Eyebrow>
@@ -59,13 +56,9 @@ export function Field({ label, error, ...inputProps }) {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.surface.light },
+const makeStyles = (colors) => StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.surface.primary },
   content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl, gap: spacing.lg },
-  // Same asset and box as the dashboard header so the two can't drift apart
-  // (F12). The artwork is dark-on-transparent, which this screen's light
-  // background suits — see F19 before putting it on a dark surface.
-  logo: { width: 144, height: 36 },
   header: { gap: spacing.xs, marginTop: spacing.lg },
   title: { marginTop: spacing.xs },
   subtitle: { ...typography.body, color: colors.text.muted, marginTop: spacing.xs },
@@ -79,8 +72,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text.primary,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
   inputError: { borderColor: colors.brand.red },
-  errorText: { ...typography.small, color: colors.brand.red },
+  errorText: { ...typography.small, color: colors.brand.redText },
 });

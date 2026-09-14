@@ -1,5 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '../../constants/theme';
+import { useTheme } from './ThemeProvider';
 
 /**
  * Every icon in the app resolves through this one map.
@@ -69,7 +69,8 @@ const ICONS = {
   scale: [MaterialCommunityIcons, 'scale-balance'],
 };
 
-export function Icon({ name, size = 20, color = colors.text.primary, style }) {
+export function Icon({ name, size = 20, color, style }) {
+  const { colors } = useTheme();
   const entry = ICONS[name];
 
   if (!entry) {
@@ -80,7 +81,11 @@ export function Icon({ name, size = 20, color = colors.text.primary, style }) {
   }
 
   const [Family, glyph] = entry;
-  return <Family name={glyph} size={size} color={color} style={style} />;
+  // Resolved here, not in the signature: a default parameter cannot read
+  // a hook, and an unthemed default would stay black in dark mode.
+  return (
+    <Family name={glyph} size={size} color={color ?? colors.text.primary} style={style} />
+  );
 }
 
 /** Names are exported so callers can be checked against the map in tests. */

@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 const DAY_INITIALS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
@@ -9,6 +10,7 @@ const DAY_INITIALS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
  * @param {boolean[]} completedDays - Monday-first, length 7
  */
 export function WeeklyGrid({ completedDays = [], targetDays }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   const completedCount = completedDays.filter(Boolean).length;
   const denominator = targetDays || 7;
   const percent = Math.min(100, (completedCount / denominator) * 100);
@@ -24,7 +26,7 @@ export function WeeklyGrid({ completedDays = [], targetDays }) {
             <Icon
               name={completedDays[i] ? 'check' : 'dot'}
               size={completedDays[i] ? 14 : 6}
-              color={completedDays[i] ? colors.brand.red : colors.border.default}
+              color={completedDays[i] ? colors.brand.redText : colors.border.default}
             />
           </View>
         ))}
@@ -38,14 +40,14 @@ export function WeeklyGrid({ completedDays = [], targetDays }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   tile: {
     flex: 1,
     padding: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.border.default,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     gap: spacing.sm,
   },
   eyebrow: { ...typography.eyebrow, fontSize: 9, color: colors.text.muted },

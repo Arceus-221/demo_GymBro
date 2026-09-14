@@ -1,12 +1,14 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../constants/theme';
+import { radius, spacing, typography } from '../../constants/theme';
 import { Icon } from '../shared/Icon';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 /**
  * Full-width option row: icon tile, label + sub-label, trailing check circle.
  * Selected state gets a red border, tinted fill, and a filled check (Phase 3 §2.1).
  */
 export function SelectRow({ label, sub, icon, selected, onPress }) {
+  const { styles, colors } = useThemedStyles(makeStyles);
   return (
     <Pressable
       accessibilityRole="radio"
@@ -19,7 +21,7 @@ export function SelectRow({ label, sub, icon, selected, onPress }) {
         <Icon
           name={icon}
           size={26}
-          color={selected ? colors.brand.red : colors.text.mid}
+          color={selected ? colors.brand.redText : colors.text.mid}
         />
       </View>
       <View style={styles.text}>
@@ -33,7 +35,7 @@ export function SelectRow({ label, sub, icon, selected, onPress }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.border.default,
     borderRadius: radius.lg,
-    backgroundColor: colors.surface.light,
+    backgroundColor: colors.surface.primary,
     overflow: 'hidden',
   },
   rowSelected: {
@@ -62,11 +64,15 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: radius.md,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconTileSelected: { backgroundColor: '#FFFFFF' },
+  // surface.primary, not text.inverse: this is a background, not a glyph.
+  // Identical in light mode (both were #FFFFFF), but in dark a near-white tile
+  // would be the brightest thing on the screen — here it reads as a subtle
+  // inset against the red-tinted selected row instead.
+  iconTileSelected: { backgroundColor: colors.surface.primary },
   text: { flex: 1, gap: 2 },
   label: { ...typography.h2, fontSize: 17, color: colors.text.primary },
   sub: { ...typography.small, color: colors.text.muted },

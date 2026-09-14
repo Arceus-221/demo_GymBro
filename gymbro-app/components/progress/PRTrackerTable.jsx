@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, spacing, typography } from '../../constants/theme';
+import { spacing, typography } from '../../constants/theme';
 import { formatWeight } from '../../constants/units';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useThemedStyles } from '../shared/ThemeProvider';
 
 export function PRTrackerTable({ records }) {
+  const { styles } = useThemedStyles(makeStyles);
   const weightUnit = useSettingsStore((s) => s.weightUnit);
 
   if (records.length === 0) {
@@ -32,13 +34,13 @@ export function PRTrackerTable({ records }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors) => StyleSheet.create({
   table: { borderRadius: 12, borderWidth: 1, borderColor: colors.border.default, overflow: 'hidden' },
   headerRow: {
     flexDirection: 'row',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: colors.surface.muted,
+    backgroundColor: colors.surface.secondary,
   },
   header: { ...typography.eyebrow, fontSize: 8, color: colors.text.muted },
   row: {
@@ -49,7 +51,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border.soft,
   },
   cell: { ...typography.small, color: colors.text.primary },
-  best: { fontWeight: '800', color: colors.brand.red },
+  best: { fontWeight: '800', color: colors.brand.redText },
   colName: { flex: 1 },
   colBest: { width: 70 },
   colDate: { width: 50, textAlign: 'right' },
