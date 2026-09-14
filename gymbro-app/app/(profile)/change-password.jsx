@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
 } from 'react-native';
 import { Field } from '../../components/shared/AuthShell';
 import { Button } from '../../components/shared/Button';

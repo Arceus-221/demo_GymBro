@@ -8,7 +8,7 @@ const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const parseJsonDefensively = (rawText) => {
   try {
     return JSON.parse(rawText);
-  } catch (e) {
+  } catch {
     const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim();
     return JSON.parse(cleaned);
   }

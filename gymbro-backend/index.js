@@ -34,6 +34,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`GymBro API running on port ${PORT}`));
+
+// Only bind a port when this file is run directly. Requiring it from a test
+// must not start a server, or Jest hangs on the open handle after the suite
+// finishes.
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`GymBro API running on port ${PORT}`));
+}
 
 module.exports = app; // exported for supertest in __tests__

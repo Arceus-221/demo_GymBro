@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "allowJs": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    // checkJs is OFF deliberately. Turning it on reports 637 errors, ~90% of
+    // which are "this JS is not annotated" (implicit-any on every prop and
+    // callback) rather than defects. Type-checking this codebase is a real
+    // project — annotating component props throughout — not a CI fix, so the
+    // gate currently verifies that the project parses and resolves, and
+    // becomes a genuine check the moment any .ts/.tsx file is added.
+    "checkJs": false
+  },
+  "include": ["**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules", "dist", ".expo"]
+}

@@ -23,7 +23,7 @@ const GEMINI_URL =
 const parseJsonDefensively = (rawText) => {
   try {
     return JSON.parse(rawText);
-  } catch (e) {
+  } catch {
     const cleaned = rawText.replace(/```json\n?|```\n?/g, '').trim();
     return JSON.parse(cleaned);
   }

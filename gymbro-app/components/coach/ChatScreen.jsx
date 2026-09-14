@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { limitToLast, orderBy, query } from 'firebase/firestore';
+import { limitToLast, orderBy } from 'firebase/firestore';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
